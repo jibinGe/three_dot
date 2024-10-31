@@ -8,25 +8,14 @@ class AuthRepository {
   final Dio _dio;
   final StorageService _storageService;
 
-  AuthRepository()
+  AuthRepository(this._storageService)
       : _dio = Dio(BaseOptions(
           connectTimeout: Duration(minutes: 8),
           receiveTimeout: Duration(minutes: 5),
           validateStatus: (status) => status! < 500,
           baseUrl: ApiConstants.baseUrl, // Add base URL here
-        )),
-        _storageService = StorageService() {
-    if (kDebugMode) {
-      _dio.interceptors.add(LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
-      ));
-    }
-  }
+        ))
+        ;
 
   Future<UserModel> login(String username, String password) async {
     try {
@@ -72,6 +61,8 @@ class AuthRepository {
         debugPrint('User details response data: ${userResponse.data}');
 
         if (userResponse.statusCode == 200) {
+          final user = UserModel.fromJson(userResponse.data);
+          await _storageService.saveUserData(user.toString());
           return UserModel.fromJson(userResponse.data);
         } else {
           throw Exception(

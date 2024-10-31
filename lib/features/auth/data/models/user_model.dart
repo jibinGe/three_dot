@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class UserModel {
   final int id;
   final String fullName;
@@ -24,5 +26,28 @@ class UserModel {
       email: json['email'],
       permissions: List<String>.from(json['permissions']),
     );
+  }
+
+  // Convert UserModel to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'full_name': fullName,
+      'mobile': mobile,
+      'username': username,
+      'email': email,
+      'permissions': permissions,
+    };
+  }
+
+  // Convert to string for storage
+  String toJsonString() {
+    return jsonEncode(toJson());
+  }
+
+  // Create UserModel from stored string
+  factory UserModel.fromJsonString(String jsonString) {
+    final Map<String, dynamic> json = jsonDecode(jsonString);
+    return UserModel.fromJson(json);
   }
 }

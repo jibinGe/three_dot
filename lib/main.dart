@@ -7,9 +7,12 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/auth/presentation/screens/forgot_password_screen.dart';
 import 'features/auth/presentation/screens/home_screen.dart';
-import 'features/auth/data/providers/auth_provider.dart'; // Add this import
+import 'features/auth/data/providers/auth_provider.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(
     ProviderScope(
       child: MyApp(),
@@ -22,18 +25,29 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
 
+    // // Show a loading indicator while checking authentication
+    // if (authState.isLoading) {
+    //   return MaterialApp(
+    //     home: Scaffold(
+    //       body: Center(
+    //         child: CircularProgressIndicator(),
+    //       ),
+    //     ),
+    //   );
+    // }
+
     return MaterialApp(
       title: 'Auth App',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      initialRoute: authState.isAuthenticated ? '/home' : '/login',
+      home: authState.isAuthenticated ? HomeScreen() : LoginScreen(),
       routes: {
         '/login': (context) => LoginScreen(),
         '/forgot-password': (context) => ForgotPasswordScreen(),
         '/home': (context) => HomeScreen(),
         '/inquiry-form': (context) => InquiryFormScreen(),
         '/admin_dashboard': (context) => AdminDashboard(),
-        '/products': (context) => ProductsScreen(),
+        '/products': (context) => const ProductsScreen(),
       },
     );
   }
