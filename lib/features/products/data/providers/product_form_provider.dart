@@ -21,6 +21,13 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     );
   }
 
+  void removeInitialProduct() {
+    state = ProductFormState(
+      initialProduct: null,
+      specifications: null,
+    );
+  }
+
   void addSpecification(String key, dynamic value) {
     final updatedSpecs = Map<String, dynamic>.from(state.specifications);
     updatedSpecs[key] = value;
