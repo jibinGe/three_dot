@@ -27,10 +27,27 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             if (user?.permissions.contains('admin') ?? false) ...[
+              // ListTile(
+              //   leading: Icon(Icons.admin_panel_settings),
+              //   title: Text('Admin Dashboard'),
+              //   onTap: () {
+              //     Navigator.popAndPushNamed(context, "/admin_dashboard");
+              //     // Navigate to admin dashboard
+              //   },
+              // ),
               ListTile(
-                leading: Icon(Icons.admin_panel_settings),
-                title: Text('Admin Dashboard'),
+                leading: Icon(Icons.person),
+                title: Text('Users'),
                 onTap: () {
+                  Navigator.popAndPushNamed(context, "/admin_dashboard");
+                  // Navigate to admin dashboard
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.window),
+                title: Text('Products'),
+                onTap: () {
+                  Navigator.popAndPushNamed(context, "/products");
                   // Navigate to admin dashboard
                 },
               ),
@@ -62,6 +79,14 @@ class HomeScreen extends ConsumerWidget {
                 },
               ),
             ],
+            ListTile(
+              leading: Icon(Icons.edit_note),
+              title: Text('Inquiry Form'),
+              onTap: () {
+                Navigator.pushNamed(context, '/inquiry-form');
+                // Navigate to onsite staff portal
+              },
+            ),
             Divider(),
             ListTile(
               leading: Icon(Icons.settings),

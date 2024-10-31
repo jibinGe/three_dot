@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:three_dot/features/inquiry/presentation/admin_dashboard.dart';
+import 'package:three_dot/features/inquiry/presentation/screens/inquiry_form_screen.dart';
+import 'package:three_dot/features/products/presentation/screens/procducts_screen.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/auth/presentation/screens/forgot_password_screen.dart';
@@ -28,6 +31,9 @@ class MyApp extends ConsumerWidget {
         '/login': (context) => LoginScreen(),
         '/forgot-password': (context) => ForgotPasswordScreen(),
         '/home': (context) => HomeScreen(),
+        '/inquiry-form': (context) => InquiryFormScreen(),
+        '/admin_dashboard': (context) => AdminDashboard(),
+        '/products': (context) => ProductsScreen(),
       },
     );
   }
