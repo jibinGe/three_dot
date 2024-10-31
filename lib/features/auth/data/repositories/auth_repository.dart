@@ -10,8 +10,8 @@ class AuthRepository {
 
   AuthRepository()
       : _dio = Dio(BaseOptions(
-          connectTimeout: Duration(seconds: 5),
-          receiveTimeout: Duration(seconds: 3),
+          connectTimeout: Duration(minutes: 8),
+          receiveTimeout: Duration(minutes: 5),
           validateStatus: (status) => status! < 500,
           baseUrl: ApiConstants.baseUrl, // Add base URL here
         )),
