@@ -35,8 +35,8 @@ class ProductRepository {
       final String? accessToken = await _storageService.getToken();
 
       final response = await _dio.get(
-        '/products/',
-        data: formData,
+        '/products/?category=$category&skip=0&limit=100',
+        // data: formData,
         options: Options(
           contentType: 'application/x-www-form-urlencoded',
           headers: {
