@@ -14,8 +14,7 @@ class AuthRepository {
           receiveTimeout: Duration(minutes: 5),
           validateStatus: (status) => status! < 500,
           baseUrl: ApiConstants.baseUrl, // Add base URL here
-        ))
-        ;
+        ));
 
   Future<UserModel> login(String username, String password) async {
     try {
@@ -217,5 +216,42 @@ class AuthRepository {
   Future<bool> isLoggedIn() async {
     final token = await _storageService.getToken();
     return token != null;
+  }
+
+  Future<UserModel?> validateToken() async {
+    try {
+      debugPrint("validating user ......");
+      final token = await _storageService.getToken();
+
+      if (token == null) {
+        debugPrint("Null token");
+        return null;
+      }
+
+      final response = await _dio.get(
+        '/auth/me',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+      debugPrint(response.statusCode.toString());
+      debugPrint(response.data.toString());
+
+      if (response.statusCode == 200) {
+        return UserModel.fromJson(response.data);
+      } else {
+        // Token is invalid or expired
+        await _storageService.clearAll();
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error validating token: ${e.toString()}');
+      // Clear storage on any error
+      await _storageService.clearAll();
+      return null;
+    }
   }
 }

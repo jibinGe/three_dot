@@ -3,28 +3,36 @@ import 'user_model.dart';
 
 class AuthState {
   final bool isLoading;
-  final String? error;
   final bool isAuthenticated;
+  final bool isInitialized;
   final UserModel? user;
+  final String? error;
+  final Map<String, String>? savedCredentials;
 
   AuthState({
     this.isLoading = false,
-    this.error,
     this.isAuthenticated = false,
+    this.isInitialized = false,
     this.user,
+    this.error,
+    this.savedCredentials,
   });
 
   AuthState copyWith({
     bool? isLoading,
-    String? error,
     bool? isAuthenticated,
+    bool? isInitialized,
     UserModel? user,
+    String? error,
+    Map<String, String>? savedCredentials,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      isInitialized: isInitialized ?? this.isInitialized,
       user: user ?? this.user,
+      error: error ?? this.error,
+      savedCredentials: savedCredentials ?? this.savedCredentials,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:three_dot/features/auth/presentation/screens/splash_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/admin_dashboard.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_form_screen.dart';
 import 'package:three_dot/features/products/presentation/screens/procducts_screen.dart';
@@ -10,37 +11,28 @@ import 'features/auth/presentation/screens/home_screen.dart';
 import 'features/auth/data/providers/auth_provider.dart';
 
 void main() async {
-  // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
-
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MyApp(),
     ),
   );
 }
 
 class MyApp extends ConsumerWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
-
-    // // Show a loading indicator while checking authentication
-    // if (authState.isLoading) {
-    //   return MaterialApp(
-    //     home: Scaffold(
-    //       body: Center(
-    //         child: CircularProgressIndicator(),
-    //       ),
-    //     ),
-    //   );
-    // }
 
     return MaterialApp(
       title: 'Auth App',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      home: authState.isAuthenticated ? HomeScreen() : LoginScreen(),
+      home: authState.isInitialized
+          ? (authState.isAuthenticated ? HomeScreen() : LoginScreen())
+          : const SplashScreen(),
       routes: {
         '/login': (context) => LoginScreen(),
         '/forgot-password': (context) => ForgotPasswordScreen(),
