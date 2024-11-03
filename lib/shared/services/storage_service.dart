@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,11 +27,14 @@ class StorageService {
   Future<void> saveRememberMe(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(rememberMeKey, value);
+    debugPrint("RememberMe value saved in SharedPreferences: $value");
   }
 
   Future<bool> getRememberMe() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(rememberMeKey) ?? false;
+    final rememberMe = prefs.getBool(rememberMeKey) ?? false;
+    debugPrint("RememberMe value retrieved: $rememberMe");
+    return rememberMe;
   }
 
   // User data methods

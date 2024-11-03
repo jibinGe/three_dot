@@ -27,7 +27,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     'inverter',
     'wiring',
     'ac_db',
-    'bc_db'
+    'dc_db'
   ];
 
   @override

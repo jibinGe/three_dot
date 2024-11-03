@@ -83,7 +83,7 @@ class HomeScreen extends ConsumerWidget {
               leading: Icon(Icons.edit_note),
               title: Text('Inquiry Form'),
               onTap: () {
-                Navigator.pushNamed(context, '/inquiry-form');
+                Navigator.pushNamed(context, '/inquires');
                 // Navigate to onsite staff portal
               },
             ),

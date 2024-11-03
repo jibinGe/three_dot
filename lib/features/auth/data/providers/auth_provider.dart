@@ -1,4 +1,5 @@
 // auth_provider.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:three_dot/features/auth/data/models/user_model.dart';
@@ -39,9 +40,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // Load saved credentials on initialization
   Future<void> _loadSavedCredentials() async {
+    debugPrint("Checking remember me in AuthNotifier...");
     final rememberMe = await _storageService.getRememberMe();
     if (rememberMe) {
+      debugPrint("Remember me is true. Fetching credentials...");
       state = state.copyWith(savedCredentials: await _getSavedCredentials());
+      debugPrint(
+          "Saved credentials loaded into state: ${state.savedCredentials}");
     }
   }
 
@@ -63,36 +68,36 @@ class AuthNotifier extends StateNotifier<AuthState> {
       {required bool rememberMe}) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
+      debugPrint("Login initiated");
 
       final user = await _authRepository.login(username, password);
       await _storageService.saveUserData(user.toJsonString());
 
-      // Handle remember me
       await _storageService.saveRememberMe(rememberMe);
+      debugPrint("RememberMe status saved: $rememberMe");
+
       if (rememberMe) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('saved_username', username);
         await prefs.setString('saved_password', password);
+        debugPrint("Username and password saved");
       } else {
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('saved_username');
         await prefs.remove('saved_password');
+        debugPrint("Credentials cleared as RememberMe was not checked");
       }
 
       state = state.copyWith(
-        isLoading: false,
-        user: user,
-        isAuthenticated: true,
-        error: null,
-      );
+          isLoading: false, user: user, isAuthenticated: true, error: null);
     } catch (e) {
       await _storageService.clearAll();
       state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-        isAuthenticated: false,
-        user: null,
-      );
+          isLoading: false,
+          error: e.toString(),
+          isAuthenticated: false,
+          user: null);
+      debugPrint("Login error: $e");
     }
   }
 
