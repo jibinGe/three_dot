@@ -8,25 +8,13 @@ class AuthRepository {
   final Dio _dio;
   final StorageService _storageService;
 
-  AuthRepository()
+  AuthRepository(this._storageService)
       : _dio = Dio(BaseOptions(
           connectTimeout: Duration(minutes: 8),
           receiveTimeout: Duration(minutes: 5),
           validateStatus: (status) => status! < 500,
           baseUrl: ApiConstants.baseUrl, // Add base URL here
-        )),
-        _storageService = StorageService() {
-    if (kDebugMode) {
-      _dio.interceptors.add(LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
-      ));
-    }
-  }
+        ));
 
   Future<UserModel> login(String username, String password) async {
     try {
@@ -72,6 +60,8 @@ class AuthRepository {
         debugPrint('User details response data: ${userResponse.data}');
 
         if (userResponse.statusCode == 200) {
+          final user = UserModel.fromJson(userResponse.data);
+          await _storageService.saveUserData(user.toString());
           return UserModel.fromJson(userResponse.data);
         } else {
           throw Exception(
@@ -226,5 +216,42 @@ class AuthRepository {
   Future<bool> isLoggedIn() async {
     final token = await _storageService.getToken();
     return token != null;
+  }
+
+  Future<UserModel?> validateToken() async {
+    try {
+      debugPrint("validating user ......");
+      final token = await _storageService.getToken();
+
+      if (token == null) {
+        debugPrint("Null token");
+        return null;
+      }
+
+      final response = await _dio.get(
+        '/auth/me',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+      debugPrint(response.statusCode.toString());
+      debugPrint(response.data.toString());
+
+      if (response.statusCode == 200) {
+        return UserModel.fromJson(response.data);
+      } else {
+        // Token is invalid or expired
+        await _storageService.clearAll();
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error validating token: ${e.toString()}');
+      // Clear storage on any error
+      await _storageService.clearAll();
+      return null;
+    }
   }
 }

@@ -51,7 +51,7 @@ class ProductCategoriesNavigationBar extends StatelessWidget {
         return 2;
       case 'ac_db':
         return 3;
-      case 'bc_db':
+      case 'dc_db':
         return 4;
       default:
         return 0;
@@ -69,7 +69,7 @@ class ProductCategoriesNavigationBar extends StatelessWidget {
       case 3:
         return 'ac_db';
       case 4:
-        return 'bc_db';
+        return 'dc_db';
       default:
         return 'solar_panel';
     }

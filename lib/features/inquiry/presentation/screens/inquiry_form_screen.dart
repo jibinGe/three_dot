@@ -1,15 +1,226 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:three_dot/features/inquiry/data/models/location_model.dart';
+import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
+import 'package:three_dot/features/inquiry/presentation/screens/inquiry_detail_screen.dart';
 
-class InquiryFormScreen extends ConsumerWidget {
+class InquiryFormScreen extends ConsumerStatefulWidget {
+  const InquiryFormScreen({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InquiryFormScreen> createState() => _InquiryFormScreenState();
+}
+
+class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _consumerNumberController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _mobileNumberController = TextEditingController();
+  final _emailController = TextEditingController();
+  double? _latitude;
+  double? _longitude;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _consumerNumberController.dispose();
+    _addressController.dispose();
+    _mobileNumberController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Inquiry Form"),
-        // automaticallyImplyLeading: true,
+        title: const Text('New Inquiry'),
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _consumerNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Consumer Number',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.numbers),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter consumer number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _addressController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Address',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.location_on),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter address';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _mobileNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Mobile Number',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.phone),
+              ),
+              keyboardType: TextInputType.phone,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter mobile number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter email';
+                }
+                if (!value.contains('@')) {
+                  return 'Please enter valid email';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildLocationPicker(),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _submitForm,
+                child: const Text('Submit'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildLocationPicker() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Location',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _latitude != null
+                        ? 'Lat: $_latitude, Long: $_longitude'
+                        : 'No location selected',
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _pickLocation,
+                  icon: const Icon(Icons.my_location),
+                  label: const Text('Pick Location'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _pickLocation() async {
+    // Implement location picking functionality
+    // You can use a map picker or get current location
+    setState(() {
+      _latitude = 0.0; // Replace with actual picked location
+      _longitude = 0.0; // Replace with actual picked location
+    });
+  }
+
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      if (_latitude == null || _longitude == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please pick a location')),
+        );
+        return;
+      }
+
+      try {
+        await ref.read(inquiryProvider.notifier).createInquiryStage1(
+              name: _nameController.text,
+              consumerNumber: _consumerNumberController.text,
+              address: _addressController.text,
+              mobileNumber: _mobileNumberController.text,
+              email: _emailController.text,
+              location: LocationModel(
+                lat: _latitude!,
+                lng: _longitude!,
+              ),
+            );
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const InquiryDetailScreen(inquiryId: 1),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.toString()}')),
+          );
+        }
+      }
+    }
   }
 }

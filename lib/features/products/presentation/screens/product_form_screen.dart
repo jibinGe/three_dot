@@ -27,7 +27,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     'inverter',
     'wiring',
     'ac_db',
-    'bc_db'
+    'dc_db'
   ];
 
   @override
@@ -73,15 +73,30 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         stockController.text = widget.product?.stock?.toString() ?? "";
         categoryController.text = widget.product?.category ?? "";
       });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Set initial product in the form provider
+        ref.read(productFormProvider.notifier).removeInitialProduct();
+
+        // Populate text controllers
+        nameController.clear();
+        manufacturerController.clear();
+        modelController.clear();
+        descriptionController.clear();
+        unitPriceController.clear();
+        unitTypeController.clear();
+        stockController.clear();
+        categoryController.clear();
+      });
     }
   }
 
   @override
   void dispose() {
     // Dispose all controllers
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
+    // for (var controller in _controllers) {
+    //   controller.dispose();
+    // }
     super.dispose();
   }
 

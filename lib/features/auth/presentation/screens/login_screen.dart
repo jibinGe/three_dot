@@ -17,6 +17,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _rememberMe = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    debugPrint("loading saved");
+    final rememberMe = await ref.read(storageServiceProvider).getRememberMe();
+    debugPrint("rememberMe $rememberMe");
+    if (rememberMe) {
+      final authState = ref.read(authStateProvider);
+      if (authState.savedCredentials != null) {
+        debugPrint("savedCredentials ${authState.savedCredentials}");
+        setState(() {
+          _rememberMe = true;
+          _usernameController.text =
+              authState.savedCredentials!['username'] ?? '';
+          _passwordController.text =
+              authState.savedCredentials!['password'] ?? '';
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
@@ -29,6 +54,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await ref.read(authStateProvider.notifier).login(
               _usernameController.text,
               _passwordController.text,
+              rememberMe: _rememberMe,
             );
 
         final authState = ref.read(authStateProvider);
@@ -48,9 +74,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Form(
               key: _formKey,
               child: Column(
@@ -64,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 32),
+                  const SizedBox(height: 32),
                   CustomTextField(
                     controller: _usernameController,
                     label: 'Username',
@@ -72,7 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     validator: Validators.validateUsername,
                     onFieldSubmitted: (_) => _handleLogin(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   CustomTextField(
                     controller: _passwordController,
                     label: 'Password',
@@ -81,7 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     validator: Validators.validatePassword,
                     onFieldSubmitted: (_) => _handleLogin(),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -95,27 +121,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               });
                             },
                           ),
-                          Text('Remember me'),
+                          const Text('Remember me'),
                         ],
                       ),
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/forgot-password');
                         },
-                        child: Text('Forgot Password?'),
+                        child: const Text('Forgot Password?'),
                       ),
                     ],
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   AuthButton(
                     onPressed: _handleLogin,
                     isLoading: authState.isLoading,
                     label: 'Login',
                   ),
                   if (authState.error != null) ...[
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Container(
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Theme.of(context)
                             .colorScheme
