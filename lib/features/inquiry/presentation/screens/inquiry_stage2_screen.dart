@@ -20,9 +20,14 @@ class InquiryStage2Screen extends ConsumerStatefulWidget {
 class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   final _formKey = GlobalKey<FormState>();
   String _selectedRoofType = 'normal';
+  String _selectedQuotationStatus = 'pending';
+  String _selectedConfirmationStatus = 'pending';
   final _roofSpecificationController = TextEditingController();
   final _proposedAmountController = TextEditingController();
   final _proposedCapacityController = TextEditingController();
+
+  final _confirmationRejectionController = TextEditingController();
+  final _quotationRejectionController = TextEditingController();
   final _paymentTermsController = TextEditingController();
   final List<SelectedProductModel> _selectedProducts = [];
 
@@ -38,9 +43,17 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
     if (inquiry != null) {
       setState(() {
         _selectedRoofType = inquiry.roofType;
+        _selectedQuotationStatus = inquiry.quotationStatus;
+        _selectedConfirmationStatus = inquiry.confirmationStatus;
+        _selectedQuotationStatus = inquiry.quotationStatus;
+        _selectedConfirmationStatus = inquiry.confirmationStatus;
         _roofSpecificationController.text = inquiry.roofSpecification;
         _proposedAmountController.text = inquiry.proposedAmount.toString();
         _proposedCapacityController.text = inquiry.proposedCapacity.toString();
+        _quotationRejectionController.text =
+            inquiry.quotationRejectionReason ?? "";
+        _confirmationRejectionController.text =
+            inquiry.confirmationStatus ?? "";
         _paymentTermsController.text = inquiry.paymentTerms;
         _selectedProducts.addAll(inquiry.selectedProducts);
       });
@@ -51,7 +64,8 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   void dispose() {
     _roofSpecificationController.dispose();
     _proposedAmountController.dispose();
-    _proposedCapacityController.dispose();
+    _confirmationRejectionController.dispose();
+    _quotationRejectionController.dispose();
     _paymentTermsController.dispose();
     super.dispose();
   }
@@ -140,6 +154,10 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
               },
             ),
             const SizedBox(height: 16),
+            _buildQuotationStatus(),
+            const SizedBox(height: 16),
+            _buildConfirmationStatus(),
+            const SizedBox(height: 16),
             _buildProductsList(),
             const SizedBox(height: 24),
             SizedBox(
@@ -181,12 +199,12 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
                   child: Text('Normal'),
                 ),
                 DropdownMenuItem(
-                  value: 'flat',
-                  child: Text('Flat'),
+                  value: 'sheet',
+                  child: Text('Sheet'),
                 ),
                 DropdownMenuItem(
-                  value: 'sloped',
-                  child: Text('Sloped'),
+                  value: 'other',
+                  child: Text('Other'),
                 ),
               ],
               onChanged: (value) {
@@ -197,6 +215,138 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
                 }
               },
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuotationStatus() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Quotation Status',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _selectedQuotationStatus,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: 'pending',
+                  child: Text('Pending'),
+                ),
+                DropdownMenuItem(
+                  value: 'accepted',
+                  child: Text('Accepted'),
+                ),
+                DropdownMenuItem(
+                  value: 'rejected',
+                  child: Text('Rejected'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedQuotationStatus = value;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            if (_selectedQuotationStatus == "rejected")
+              TextFormField(
+                controller: _quotationRejectionController,
+                decoration: const InputDecoration(
+                  labelText: 'Quotation Rejection Reason',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.notes_rounded),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (_selectedQuotationStatus == 'rejected' &&
+                      (value == null || value.isEmpty)) {
+                    return 'Please enter rejection Reason';
+                  }
+                  return null;
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConfirmationStatus() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Confirmation Status',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _selectedConfirmationStatus,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: 'pending',
+                  child: Text('Pending'),
+                ),
+                DropdownMenuItem(
+                  value: 'accepted',
+                  child: Text('Accepted'),
+                ),
+                DropdownMenuItem(
+                  value: 'rejected',
+                  child: Text('Rejected'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedConfirmationStatus = value;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            if (_selectedConfirmationStatus == "rejected")
+              TextFormField(
+                controller: _confirmationRejectionController,
+                decoration: const InputDecoration(
+                  labelText: 'Confirmation Rejection Reason',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.notes_rounded),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (_selectedConfirmationStatus == "rejected" &&
+                      (value == null || value.isEmpty)) {
+                    return 'Please enter rejection Reason';
+                  }
+                  return null;
+                },
+              ),
           ],
         ),
       ),
@@ -321,7 +471,12 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
         await ref.read(inquiryProvider.notifier).updateInquiryStage2(
               inquiryId: widget.inquiryId,
               roofType: _selectedRoofType,
+              quotationStatus: _selectedQuotationStatus,
+              confirmationStatus: _selectedConfirmationStatus,
               roofSpecification: _roofSpecificationController.text,
+              quotationRejectionReason: _quotationRejectionController.text,
+              confirmationRejectionReason:
+                  _confirmationRejectionController.text,
               proposedAmount: double.parse(_proposedAmountController.text),
               proposedCapacity: double.parse(_proposedCapacityController.text),
               paymentTerms: _paymentTermsController.text,

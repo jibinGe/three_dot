@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:three_dot/core/theme/app_colors.dart';
 import 'package:three_dot/features/inquiry/data/models/location_model.dart';
+import 'package:three_dot/features/inquiry/data/providers/inquiry_list_provider.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_detail_screen.dart';
+import 'package:three_dot/shared/services/location_service.dart';
 
 class InquiryFormScreen extends ConsumerStatefulWidget {
   const InquiryFormScreen({Key? key}) : super(key: key);
@@ -20,6 +25,7 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
   final _emailController = TextEditingController();
   double? _latitude;
   double? _longitude;
+  bool _loacationLoading = false;
 
   @override
   void dispose() {
@@ -158,14 +164,23 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
                 Expanded(
                   child: Text(
                     _latitude != null
-                        ? 'Lat: $_latitude, Long: $_longitude'
+                        ? 'Lat: $_latitude,\nLong: $_longitude'
                         : 'No location selected',
                   ),
                 ),
                 ElevatedButton.icon(
                   onPressed: _pickLocation,
-                  icon: const Icon(Icons.my_location),
-                  label: const Text('Pick Location'),
+                  icon:
+                      _loacationLoading ? null : const Icon(Icons.my_location),
+                  label: _loacationLoading
+                      ? SizedBox(
+                          width: 150,
+                          child: Center(
+                            child: LoadingAnimationWidget.waveDots(
+                                color: AppColors.surface, size: 20),
+                          ),
+                        )
+                      : const Text('Pick Location'),
                 ),
               ],
             ),
@@ -178,13 +193,29 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
   void _pickLocation() async {
     // Implement location picking functionality
     // You can use a map picker or get current location
-    setState(() {
-      _latitude = 0.0; // Replace with actual picked location
-      _longitude = 0.0; // Replace with actual picked location
-    });
+    try {
+      setState(() {
+        _loacationLoading = true;
+      });
+      final position = await LocationService.getLocation();
+      if (position != null) {
+        setState(() {
+          _latitude = position.latitude; // Replace with actual picked location
+          _longitude =
+              position.longitude; // Replace with actual picked location
+        });
+      }
+    } catch (e) {
+      debugPrint("Error getting Location");
+    } finally {
+      setState(() {
+        _loacationLoading = false;
+      });
+    }
   }
 
   void _submitForm() async {
+    final inquiryState = ref.watch(inquiryProvider);
     if (_formKey.currentState!.validate()) {
       if (_latitude == null || _longitude == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -205,12 +236,17 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
                 lng: _longitude!,
               ),
             );
+        // Refresh the Inquiry list
+        ref.refresh(inquiryListProvider);
 
         if (mounted) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => const InquiryDetailScreen(inquiryId: 1),
+              builder: (context) => const InquiryDetailScreen(
+                inquiryId: 1,
+                isJustCreated: true,
+              ),
             ),
           );
         }

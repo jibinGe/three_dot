@@ -23,7 +23,7 @@ class InquiryModel {
   final double totalCost;
   final String quotationStatus;
   final String? quotationRejectionReason;
-  final bool confirmationStatus;
+  final String confirmationStatus;
   final String? confirmationRejectionReason;
   final double agreedAmount;
   final List<SelectedProductModel> selectedProducts;
@@ -81,7 +81,7 @@ class InquiryModel {
       totalCost: json['total_cost']?.toDouble() ?? 0.0,
       quotationStatus: json['quotation_status'] ?? '',
       quotationRejectionReason: json['quotation_rejection_reason'],
-      confirmationStatus: json['confirmation_status'] ?? false,
+      confirmationStatus: json['confirmation_status'] ?? "",
       confirmationRejectionReason: json['confirmation_rejection_reason'],
       agreedAmount: json['agreed_amount']?.toDouble() ?? 0.0,
       selectedProducts: (json['selected_products'] as List<dynamic>? ?? [])

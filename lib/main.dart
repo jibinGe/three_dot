@@ -5,6 +5,7 @@ import 'package:three_dot/features/inquiry/presentation/admin_dashboard.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_form_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_list_screen.dart';
 import 'package:three_dot/features/products/presentation/screens/procducts_screen.dart';
+import 'package:three_dot/shared/services/location_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/auth/presentation/screens/forgot_password_screen.dart';
@@ -26,7 +27,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
-
+    LocationService.checkLocationPermission();
     return MaterialApp(
       title: 'Auth App',
       theme: AppTheme.lightTheme,

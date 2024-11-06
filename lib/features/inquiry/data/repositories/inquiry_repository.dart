@@ -29,6 +29,29 @@ class InquiryRepository {
       ));
     }
   }
+  Future<List<InquiryModel>> getAllInquiries() async {
+    try {
+      final String? accessToken = await _storageService.getToken();
+
+      final response = await _dio.get(
+        '/inquiry/?page=1&size=10',
+        // data: formData,
+        options: Options(
+          contentType: 'application/x-www-form-urlencoded',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+
+      return (response.data["items"] as List)
+          .map((json) => InquiryModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch Inquiries: $e');
+    }
+  }
 
   Future<InquiryModel> createInquiryStage1({
     required String name,
@@ -73,7 +96,11 @@ class InquiryRepository {
   Future<InquiryModel> updateInquiryStage2({
     required int inquiryId,
     required String roofType,
+    required String quotationStatus,
+    required String confirmationStatus,
     required String roofSpecification,
+    required String confirmationRejectionReason,
+    required String quotationRejectionReason,
     required double proposedAmount,
     required double proposedCapacity,
     required String paymentTerms,
@@ -91,6 +118,12 @@ class InquiryRepository {
           'proposed_capacity': proposedCapacity,
           'payment_terms': paymentTerms,
           'selected_products': selectedProducts.map((p) => p.toJson()).toList(),
+          'quotation_status': quotationStatus,
+          'confirmation_status': confirmationStatus,
+          if (quotationRejectionReason != "")
+            'quotation_rejection_reason': quotationRejectionReason,
+          if (confirmationRejectionReason != "")
+            'confirmation_rejection_reason': confirmationRejectionReason,
         },
         options: Options(
           headers: {

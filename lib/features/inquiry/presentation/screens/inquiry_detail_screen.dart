@@ -6,11 +6,11 @@ import 'package:three_dot/features/inquiry/presentation/screens/inquiry_stage2_s
 
 class InquiryDetailScreen extends ConsumerStatefulWidget {
   final int inquiryId;
+  final bool? isJustCreated;
 
-  const InquiryDetailScreen({
-    Key? key,
-    required this.inquiryId,
-  }) : super(key: key);
+  const InquiryDetailScreen(
+      {Key? key, required this.inquiryId, this.isJustCreated = false})
+      : super(key: key);
 
   @override
   ConsumerState<InquiryDetailScreen> createState() =>
@@ -22,8 +22,10 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
   void initState() {
     super.initState();
     // Load inquiry details
-    Future.microtask(
-        () => ref.read(inquiryProvider.notifier).getInquiry(widget.inquiryId));
+    if (!widget.isJustCreated!) {
+      Future.microtask(() =>
+          ref.read(inquiryProvider.notifier).getInquiry(widget.inquiryId));
+    }
   }
 
   @override

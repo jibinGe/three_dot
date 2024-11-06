@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/inquiry/data/models/location_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
+import 'package:three_dot/features/inquiry/data/providers/inquiry_list_provider.dart';
 import 'package:three_dot/features/inquiry/data/repositories/inquiry_repository.dart';
 
 final inquiryRepositoryProvider = Provider((ref) => InquiryRepository());
@@ -57,10 +58,14 @@ class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
   Future<void> updateInquiryStage2({
     required int inquiryId,
     required String roofType,
+    required String quotationStatus,
+    required String confirmationStatus,
     required String roofSpecification,
     required double proposedAmount,
     required double proposedCapacity,
     required String paymentTerms,
+    required String quotationRejectionReason,
+    required String confirmationRejectionReason,
     required List<SelectedProductModel> selectedProducts,
   }) async {
     state = const AsyncValue.loading();
@@ -68,7 +73,11 @@ class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
       final inquiry = await _repository.updateInquiryStage2(
         inquiryId: inquiryId,
         roofType: roofType,
+        quotationStatus: quotationStatus,
+        confirmationStatus: confirmationStatus,
         roofSpecification: roofSpecification,
+        quotationRejectionReason: quotationRejectionReason,
+        confirmationRejectionReason: confirmationRejectionReason,
         proposedAmount: proposedAmount,
         proposedCapacity: proposedCapacity,
         paymentTerms: paymentTerms,
