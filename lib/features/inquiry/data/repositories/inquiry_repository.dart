@@ -110,7 +110,7 @@ class InquiryRepository {
 
     try {
       final response = await _dio.put(
-        '/inquiry/stage2/$inquiryId',
+        '/inquiry/$inquiryId',
         data: {
           'roof_type': roofType,
           'roof_specification': roofSpecification,

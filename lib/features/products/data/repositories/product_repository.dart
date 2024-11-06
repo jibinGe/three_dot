@@ -54,6 +54,30 @@ class ProductRepository {
     }
   }
 
+  Future<List<Product>> getallProducts() async {
+    try {
+      final String? accessToken = await _storageService.getToken();
+
+      final response = await _dio.get(
+        '/products/',
+        // data: formData,
+        options: Options(
+          contentType: 'application/x-www-form-urlencoded',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+
+      return (response.data as List)
+          .map((json) => Product.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch products: $e');
+    }
+  }
+
   Future<void> deleteProduct(String productId) async {
     try {
       final String? accessToken = await _storageService.getToken();

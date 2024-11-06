@@ -1,8 +1,12 @@
 // lib/features/inquiry/presentation/screens/inquiry_stage2_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:three_dot/core/theme/app_colors.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
+import 'package:three_dot/features/products/data/models/product_model.dart';
+import 'package:three_dot/features/products/data/providers/product_provider.dart';
 
 class InquiryStage2Screen extends ConsumerStatefulWidget {
   final int inquiryId;
@@ -72,103 +76,120 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
 
   @override
   Widget build(BuildContext context) {
+    final productsAsync = ref.watch(allProductsProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Technical Details'),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            _buildRoofTypeSelection(),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _roofSpecificationController,
-              decoration: const InputDecoration(
-                labelText: 'Roof Specification',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.description),
-              ),
-              maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter roof specification';
-                }
-                return null;
-              },
+      body: productsAsync.when(
+        // data: (products) => ProductGrid(products: products),
+
+        loading: () => Center(
+            child: LoadingAnimationWidget.threeArchedCircle(
+          color: AppColors.textPrimary,
+          size: 24,
+        )),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+        data: (products) => products.isEmpty
+            ? const Center(child: Text('No products found'))
+            : _buildForm(products),
+      ),
+    );
+  }
+
+  Form _buildForm(List<Product> products) {
+    return Form(
+      key: _formKey,
+      child: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          _buildRoofTypeSelection(),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _roofSpecificationController,
+            decoration: const InputDecoration(
+              labelText: 'Roof Specification',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.description),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _proposedAmountController,
-              decoration: const InputDecoration(
-                labelText: 'Proposed Amount',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.attach_money),
-                prefixText: '\$ ',
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter proposed amount';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid amount';
-                }
-                return null;
-              },
+            maxLines: 3,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter roof specification';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _proposedAmountController,
+            decoration: const InputDecoration(
+              labelText: 'Proposed Amount',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.attach_money),
+              prefixText: '\$ ',
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _proposedCapacityController,
-              decoration: const InputDecoration(
-                labelText: 'Proposed Capacity (kW)',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.electric_bolt),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter proposed capacity';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid capacity';
-                }
-                return null;
-              },
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter proposed amount';
+              }
+              if (double.tryParse(value) == null) {
+                return 'Please enter a valid amount';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _proposedCapacityController,
+            decoration: const InputDecoration(
+              labelText: 'Proposed Capacity (kW)',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.electric_bolt),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _paymentTermsController,
-              decoration: const InputDecoration(
-                labelText: 'Payment Terms',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.payment),
-              ),
-              maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter payment terms';
-                }
-                return null;
-              },
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter proposed capacity';
+              }
+              if (double.tryParse(value) == null) {
+                return 'Please enter a valid capacity';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _paymentTermsController,
+            decoration: const InputDecoration(
+              labelText: 'Payment Terms',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.payment),
             ),
-            const SizedBox(height: 16),
-            _buildQuotationStatus(),
-            const SizedBox(height: 16),
-            _buildConfirmationStatus(),
-            const SizedBox(height: 16),
-            _buildProductsList(),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Save Technical Details'),
-              ),
+            maxLines: 3,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter payment terms';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildQuotationStatus(),
+          const SizedBox(height: 16),
+          _buildConfirmationStatus(),
+          const SizedBox(height: 16),
+          _buildProductsList(products),
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _submitForm,
+              child: const Text('Save Technical Details'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -353,7 +374,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
     );
   }
 
-  Widget _buildProductsList() {
+  Widget _buildProductsList(List<Product> products) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -371,7 +392,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
                   ),
                 ),
                 TextButton.icon(
-                  onPressed: _showProductSelectionDialog,
+                  onPressed: () => _showProductSelectionDialog(products),
                   icon: const Icon(Icons.add),
                   label: const Text('Add Product'),
                 ),
@@ -387,9 +408,9 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
             ...List.generate(_selectedProducts.length, (index) {
               final product = _selectedProducts[index];
               return ListTile(
-                title: Text('Product ${product.productId}'),
+                title: Text(product.name ?? "Product :${product.id}"),
                 subtitle: Text(
-                  'Quantity: ${product.quantity} | Unit Price: \$${product.unitPrice}',
+                  'Quantity: ${product.quantity} \nUnit Price: \$${product.unitPrice}',
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
@@ -407,61 +428,88 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
     );
   }
 
-  void _showProductSelectionDialog() {
+  // void _showProductSelectionDialog(List<Product> products) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text('Add Product'),
+  //       content: SingleChildScrollView(
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             // Add product selection form here
+  //             // This is a simplified version
+  //             DropdownButtonFormField<String>(
+  //               value: _selectedConfirmationStatus,
+  //               decoration: const InputDecoration(
+  //                 border: OutlineInputBorder(),
+  //               ),
+  //               items: List.generate(
+  //                 products.length,
+  //                 (index) => DropdownMenuItem(
+  //                   value: products[index].id.toString(),
+  //                   child: Text(products[index].name),
+  //                 ),
+  //               ),
+  //               onChanged: (value) {
+  //                 if (value != null) {
+  //                   setState(() {
+  //                     _selectedConfirmationStatus = value;
+  //                   });
+  //                 }
+  //               },
+  //             ),
+
+  //             TextFormField(
+  //               decoration: const InputDecoration(
+  //                 labelText: 'Quantity',
+  //               ),
+  //               keyboardType: TextInputType.number,
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: const Text('Cancel'),
+  //         ),
+  //         TextButton(
+  //           onPressed: () {
+  //             // Add product to list
+  //             setState(() {
+  //               _selectedProducts.add(
+  //                 SelectedProductModel(
+  //                   productId: 1,
+  //                   quantity: 1,
+  //                   unitPrice: 100,
+  //                 ),
+  //               );
+  //             });
+  //             Navigator.pop(context);
+  //           },
+  //           child: const Text('Add'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  void _showProductSelectionDialog(List<Product> products) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Product'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Add product selection form here
-              // This is a simplified version
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Product ID',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Quantity',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Unit Price',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              // Add product to list
-              setState(() {
-                _selectedProducts.add(
-                  SelectedProductModel(
-                    productId: 1,
-                    quantity: 1,
-                    unitPrice: 100,
-                  ),
-                );
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
+          title: const Text('Add Product'),
+          content: ProductSelectionDialog(
+              products: products,
+              onAdd: (p0) {
+                if (p0 != null) {
+                  setState(() {
+                    _selectedProducts.add(p0);
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              onCancel: () => Navigator.pop(context))),
     );
   }
 
@@ -498,5 +546,113 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
         }
       }
     }
+  }
+}
+
+class ProductSelectionDialog extends StatefulWidget {
+  final List<Product> products;
+  final void Function(SelectedProductModel?) onAdd;
+  final void Function() onCancel;
+  const ProductSelectionDialog(
+      {super.key,
+      required this.products,
+      required this.onAdd,
+      required this.onCancel});
+
+  @override
+  State<ProductSelectionDialog> createState() => _ProductSelectionDialogState();
+}
+
+class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
+  Product? _selectedProduct;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      _selectedProduct = widget.products[0];
+    });
+  }
+
+  final TextEditingController quantityController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Add product selection form here
+            // This is a simplified version
+            DropdownButtonFormField<Product>(
+              value: _selectedProduct,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              items: List.generate(
+                widget.products.length,
+                (index) => DropdownMenuItem(
+                  value: widget.products[index],
+                  child: Text(
+                    widget.products[index].name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedProduct = value;
+                  });
+                }
+              },
+            ),
+            SizedBox(height: 15),
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Quantity',
+              ),
+              validator: (value) {
+                if ((value == null || value.isEmpty)) {
+                  return 'Please enter the quantity';
+                }
+                return null;
+              },
+              controller: quantityController,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextButton(
+                  onPressed: widget.onCancel,
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      widget.onAdd(_selectedProduct != null
+                          ? SelectedProductModel(
+                              productId: _selectedProduct!.id,
+                              quantity: double.parse(quantityController.text),
+                              unitPrice: _selectedProduct!.unitPrice,
+                              name: _selectedProduct!.name)
+                          : null);
+                    }
+                  },
+                  child: const Text('Add'),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

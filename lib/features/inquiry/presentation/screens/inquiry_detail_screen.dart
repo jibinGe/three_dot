@@ -90,7 +90,7 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
             ),
           ],
         ),
-        if (inquiry.inquiryStage >= 2) ...[
+        if (inquiry.roofType != "") ...[
           const SizedBox(height: 16),
           _buildSection(
             'Technical Details',
@@ -108,6 +108,17 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
             ],
           ),
         ],
+        if (inquiry.selectedProducts.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _buildSection(
+              'Selected Products',
+              List.generate(
+                inquiry.selectedProducts.length,
+                (index) => _buildInfoRow(
+                    "Product ID : ${inquiry.selectedProducts[index].id?.toString() ?? ""}",
+                    "Quantity : ${inquiry.selectedProducts[index].quantity.toString()}"),
+              )),
+        ]
       ],
     );
   }
