@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
+import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_stage2_screen.dart';
 
@@ -110,15 +111,34 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
         ],
         if (inquiry.selectedProducts.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _buildSection(
-              'Selected Products',
-              List.generate(
-                inquiry.selectedProducts.length,
-                (index) => _buildInfoRow(
-                    "Product ID : ${inquiry.selectedProducts[index].id?.toString() ?? ""}",
-                    "Quantity : ${inquiry.selectedProducts[index].quantity.toString()}"),
-              )),
-        ]
+          _buildSection('Selected Products',
+              [ProductTable(products: inquiry.selectedProducts)]
+              // List.generate(
+              //   inquiry.selectedProducts.length,
+              //   (index) => _buildInfoRow(
+              //       "Product ID : ${inquiry.selectedProducts[index].id?.toString() ?? ""}",
+              //       "Quantity : ${inquiry.selectedProducts[index].quantity.toString()}"),
+              // )
+              ),
+        ],
+        _buildSection("Quotation Details", [
+          _buildInfoRow(
+            'Quotation Satatus',
+            inquiry.quotationStatus,
+          ),
+          _buildInfoRow(
+            'Confirmation Satatus',
+            inquiry.confirmationStatus,
+          ),
+          _buildInfoRow(
+            'Payment Terms',
+            inquiry.paymentTerms,
+          ),
+          _buildInfoRow(
+            'Total Cost',
+            inquiry.totalCost.toStringAsFixed(2),
+          ),
+        ])
       ],
     );
   }
@@ -151,8 +171,9 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 120,
+          Expanded(
+            flex: 4,
+            // width: 120,
             child: Text(
               label,
               style: const TextStyle(
@@ -162,9 +183,64 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
             ),
           ),
           Expanded(
+            flex: 5,
             child: Text(value),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ProductTable extends StatelessWidget {
+  final List<SelectedProductModel> products;
+
+  ProductTable({required this.products});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columnSpacing: 10, // Reduces space between columns
+        columns: const [
+          DataColumn(label: SizedBox(width: 40, child: Text('Index'))),
+          DataColumn(label: Text('Product Name')),
+          DataColumn(label: Text('Unit Price')),
+          DataColumn(label: Text('Quantity')),
+        ],
+        rows: List.generate(products.length, (index) {
+          final product = products[index];
+          return DataRow(cells: [
+            DataCell(
+              SizedBox(
+                width: 40,
+                child: Center(child: Text((index + 1).toString())),
+              ),
+            ),
+            DataCell(
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 150),
+                child: Text(
+                  product.name ?? product.product?.name ?? 'N/A',
+                  // overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ),
+            ),
+            DataCell(
+              FittedBox(
+                child: Text('${product.unitPrice.toStringAsFixed(0)}'),
+              ),
+            ),
+            DataCell(
+              FittedBox(
+                child: Text(
+                    '${product.quantity.toStringAsFixed(0)} (${product.product?.unitType ?? ""})'),
+              ),
+            ),
+          ]);
+        }),
       ),
     );
   }

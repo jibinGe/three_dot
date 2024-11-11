@@ -1,10 +1,12 @@
+import 'package:three_dot/features/products/data/models/product_model.dart';
+
 class SelectedProductModel {
   final int? id;
   final String? name;
   final int productId;
   final double quantity;
   final double unitPrice;
-  // final Product? product;
+  final Product? product;
 
   SelectedProductModel({
     this.id,
@@ -12,7 +14,7 @@ class SelectedProductModel {
     required this.productId,
     required this.quantity,
     required this.unitPrice,
-    // this.product,
+    this.product,
   });
 
   Map<String, dynamic> toJson() {
@@ -30,8 +32,8 @@ class SelectedProductModel {
       productId: json['product_id'] ?? 0,
       quantity: json['quantity'] ?? 0,
       unitPrice: json['unit_price']?.toDouble() ?? 0.0,
-      // product:
-      //     json['product'] != null ? Product.fromJson(json['product']) : null,
+      product:
+          json['product'] != null ? Product.fromJson(json['product']) : null,
     );
   }
 }

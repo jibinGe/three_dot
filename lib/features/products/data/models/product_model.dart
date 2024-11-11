@@ -6,8 +6,8 @@ class Product {
   final Map<String, dynamic> specifications;
   final double unitPrice;
   final String unitType;
-  final int stock;
-  final String description;
+  final int? stock;
+  final String? description;
   final int id;
 
   Product({
@@ -18,8 +18,8 @@ class Product {
     required this.specifications,
     required this.unitPrice,
     required this.unitType,
-    required this.stock,
-    required this.description,
+    this.stock,
+    this.description,
     required this.id,
   });
 

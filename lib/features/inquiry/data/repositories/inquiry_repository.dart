@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:three_dot/core/constants/api_constants.dart';
@@ -151,7 +153,7 @@ class InquiryRepository {
           },
         ),
       );
-
+      log(response.data.toString());
       return InquiryModel.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to get inquiry: $e');

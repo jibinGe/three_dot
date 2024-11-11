@@ -171,7 +171,7 @@ class ProductCard extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
-              Text(product.description),
+              Text(product.description ?? ""),
               const SizedBox(height: 16),
               Text(
                 'Specifications',
