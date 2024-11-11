@@ -59,7 +59,8 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
         _confirmationRejectionController.text =
             inquiry.confirmationStatus ?? "";
         _paymentTermsController.text = inquiry.paymentTerms;
-        _selectedProducts.addAll(inquiry.selectedProducts);
+        _selectedProducts
+            .addAll(inquiry.selectedProducts ?? <SelectedProductModel>[]);
       });
     }
   }

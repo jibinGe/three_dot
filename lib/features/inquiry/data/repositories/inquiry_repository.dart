@@ -46,11 +46,12 @@ class InquiryRepository {
           },
         ),
       );
-
+      log(response.data.toString());
       return (response.data["items"] as List)
           .map((json) => InquiryModel.fromJson(json))
           .toList();
     } catch (e) {
+      debugPrint('Failed to fetch Inquiries: $e');
       throw Exception('Failed to fetch Inquiries: $e');
     }
   }

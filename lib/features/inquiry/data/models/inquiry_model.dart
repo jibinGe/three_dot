@@ -26,7 +26,7 @@ class InquiryModel {
   final String confirmationStatus;
   final String? confirmationRejectionReason;
   final double? agreedAmount;
-  final List<SelectedProductModel> selectedProducts;
+  final List<SelectedProductModel>? selectedProducts;
 
   InquiryModel({
     required this.id,
@@ -52,7 +52,7 @@ class InquiryModel {
     required this.confirmationStatus,
     this.confirmationRejectionReason,
     this.agreedAmount,
-    required this.selectedProducts,
+    this.selectedProducts,
   });
 
   factory InquiryModel.fromJson(Map<String, dynamic> json) {
@@ -77,7 +77,7 @@ class InquiryModel {
       roofSpecification: json['roof_specification'] ?? '',
       proposedAmount: json['proposed_amount']?.toDouble() ?? 0.0,
       proposedCapacity: json['proposed_capacity']?.toDouble() ?? 0.0,
-      paymentTerms: json['payment_terms'] ?? 0,
+      paymentTerms: json['payment_terms']?.toString() ?? '',
       totalCost: json['total_cost']?.toDouble() ?? 0.0,
       quotationStatus: json['quotation_status'] ?? '',
       quotationRejectionReason: json['quotation_rejection_reason'],

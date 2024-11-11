@@ -109,10 +109,12 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
             ],
           ),
         ],
-        if (inquiry.selectedProducts.isNotEmpty) ...[
+        if (inquiry.selectedProducts?.isNotEmpty ?? false) ...[
           const SizedBox(height: 16),
-          _buildSection('Selected Products',
-              [ProductTable(products: inquiry.selectedProducts)]
+          _buildSection('Selected Products', [
+            ProductTable(
+                products: inquiry.selectedProducts ?? <SelectedProductModel>[])
+          ]
               // List.generate(
               //   inquiry.selectedProducts.length,
               //   (index) => _buildInfoRow(

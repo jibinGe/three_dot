@@ -14,33 +14,45 @@ class InquiryListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final inquiriesAsync = ref.watch(inquiryListProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inquiries'),
-      ),
-      body: inquiriesAsync.when(
-        // data: (products) => ProductGrid(products: products),
-        data: (inquiries) => inquiries.isEmpty
-            ? const Center(child: Text('No products found'))
-            : InquiryList(inquiries: inquiries),
-        loading: () => Center(
-            child: LoadingAnimationWidget.threeArchedCircle(
-          color: AppColors.textPrimary,
-          size: 24,
-        )),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const InquiryFormScreen(),
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
+        appBar: AppBar(
+          title: const Text('Inquiries'),
+        ),
+        body: inquiriesAsync.when(
+          // data: (products) => ProductGrid(products: products),
+          data: (inquiries) => inquiries.isEmpty
+              ? const Center(child: Text('No products found'))
+              : InquiryList(inquiries: inquiries),
+          loading: () => Center(
+              child: LoadingAnimationWidget.threeArchedCircle(
+            color: AppColors.textPrimary,
+            size: 24,
+          )),
+          error: (error, stack) => Center(child: Text('Error: $error')),
+        ),
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(left: 30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton.icon(
+                icon: Icon(Icons.build),
+                onPressed: () {},
+                label: Text("Start Project"),
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const InquiryFormScreen(),
+                    ),
+                  );
+                },
+                child: const Icon(Icons.add),
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget _buildInquiryCard(BuildContext context, InquiryModel inquiry) {
