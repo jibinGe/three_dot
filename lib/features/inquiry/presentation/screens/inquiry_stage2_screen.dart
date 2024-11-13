@@ -128,7 +128,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
               labelText: 'Proposed Amount',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.attach_money),
-              prefixText: '\$ ',
+              prefixText: '₹',
             ),
             keyboardType: TextInputType.number,
             validator: (value) {

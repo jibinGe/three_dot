@@ -81,9 +81,17 @@ class HomeScreen extends ConsumerWidget {
             ],
             ListTile(
               leading: Icon(Icons.edit_note),
-              title: Text('Inquiry Form'),
+              title: Text('Inquiries'),
               onTap: () {
                 Navigator.pushNamed(context, '/inquires');
+                // Navigate to onsite staff portal
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.build),
+              title: Text('Projects'),
+              onTap: () {
+                Navigator.pushNamed(context, '/projects');
                 // Navigate to onsite staff portal
               },
             ),

@@ -4,6 +4,8 @@ import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_stage2_screen.dart';
+import 'package:three_dot/features/inquiry/presentation/widgets/products_table.dart';
+import 'package:three_dot/features/project/presentation/widgets/project_form.dart';
 
 class InquiryDetailScreen extends ConsumerStatefulWidget {
   final int inquiryId;
@@ -34,37 +36,56 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
     final inquiryState = ref.watch(inquiryProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inquiry Details'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => InquiryStage2Screen(
-                    inquiryId: widget.inquiryId,
+        appBar: AppBar(
+          title: const Text('Inquiry Details'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InquiryStage2Screen(
+                      inquiryId: widget.inquiryId,
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: inquiryState.when(
-        data: (inquiry) {
-          if (inquiry == null) {
-            return const Center(child: Text('No data available'));
-          }
-          return _buildInquiryDetails(inquiry);
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text('Error: ${error.toString()}'),
+                );
+              },
+            ),
+          ],
         ),
-      ),
-    );
+        body: inquiryState.when(
+          data: (inquiry) {
+            if (inquiry == null) {
+              return const Center(child: Text('No data available'));
+            }
+            return _buildInquiryDetails(inquiry);
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Text('Error: ${error.toString()}'),
+          ),
+        ),
+        floatingActionButton: inquiryState.when(
+          data: (inquiry) {
+            if (inquiry == null) {
+              return SizedBox();
+            }
+            return ElevatedButton.icon(
+              icon: Icon(Icons.build),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (context) => ProjectForm(inquiry: inquiry),
+                );
+              },
+              label: Text("Start Project"),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (error, stack) => SizedBox.shrink(),
+        ));
   }
 
   Widget _buildInquiryDetails(InquiryModel inquiry) {
@@ -100,7 +121,7 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
               _buildInfoRow('Specification', inquiry.roofSpecification),
               _buildInfoRow(
                 'Proposed Amount',
-                '\$${inquiry.proposedAmount.toStringAsFixed(2)}',
+                '₹ ${inquiry.proposedAmount.toStringAsFixed(2)}',
               ),
               _buildInfoRow(
                 'Proposed Capacity',
@@ -114,14 +135,7 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
           _buildSection('Selected Products', [
             ProductTable(
                 products: inquiry.selectedProducts ?? <SelectedProductModel>[])
-          ]
-              // List.generate(
-              //   inquiry.selectedProducts.length,
-              //   (index) => _buildInfoRow(
-              //       "Product ID : ${inquiry.selectedProducts[index].id?.toString() ?? ""}",
-              //       "Quantity : ${inquiry.selectedProducts[index].quantity.toString()}"),
-              // )
-              ),
+          ]),
         ],
         _buildSection("Quotation Details", [
           _buildInfoRow(
@@ -138,7 +152,7 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
           ),
           _buildInfoRow(
             'Total Cost',
-            inquiry.totalCost.toStringAsFixed(2),
+            "₹ ${inquiry.totalCost.toStringAsFixed(2)}",
           ),
         ])
       ],
@@ -189,60 +203,6 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
             child: Text(value),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class ProductTable extends StatelessWidget {
-  final List<SelectedProductModel> products;
-
-  ProductTable({required this.products});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columnSpacing: 10, // Reduces space between columns
-        columns: const [
-          DataColumn(label: SizedBox(width: 40, child: Text('Index'))),
-          DataColumn(label: Text('Product Name')),
-          DataColumn(label: Text('Unit Price')),
-          DataColumn(label: Text('Quantity')),
-        ],
-        rows: List.generate(products.length, (index) {
-          final product = products[index];
-          return DataRow(cells: [
-            DataCell(
-              SizedBox(
-                width: 40,
-                child: Center(child: Text((index + 1).toString())),
-              ),
-            ),
-            DataCell(
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 150),
-                child: Text(
-                  product.name ?? product.product?.name ?? 'N/A',
-                  // overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ),
-            ),
-            DataCell(
-              FittedBox(
-                child: Text('${product.unitPrice.toStringAsFixed(0)}'),
-              ),
-            ),
-            DataCell(
-              FittedBox(
-                child: Text(
-                    '${product.quantity.toStringAsFixed(0)} (${product.product?.unitType ?? ""})'),
-              ),
-            ),
-          ]);
-        }),
       ),
     );
   }

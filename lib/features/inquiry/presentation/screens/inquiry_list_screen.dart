@@ -21,7 +21,7 @@ class InquiryListScreen extends ConsumerWidget {
           // data: (products) => ProductGrid(products: products),
           data: (inquiries) => inquiries.isEmpty
               ? const Center(child: Text('No products found'))
-              : InquiryList(inquiries: inquiries),
+              : inquiryList(inquiries: inquiries),
           loading: () => Center(
               child: LoadingAnimationWidget.threeArchedCircle(
             color: AppColors.textPrimary,
@@ -31,26 +31,16 @@ class InquiryListScreen extends ConsumerWidget {
         ),
         floatingActionButton: Padding(
           padding: EdgeInsets.only(left: 30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton.icon(
-                icon: Icon(Icons.build),
-                onPressed: () {},
-                label: Text("Start Project"),
-              ),
-              FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const InquiryFormScreen(),
-                    ),
-                  );
-                },
-                child: const Icon(Icons.add),
-              ),
-            ],
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const InquiryFormScreen(),
+                ),
+              );
+            },
+            child: const Icon(Icons.add),
           ),
         ));
   }
@@ -80,7 +70,7 @@ class InquiryListScreen extends ConsumerWidget {
     );
   }
 
-  InquiryList({required List<InquiryModel> inquiries}) {
+  inquiryList({required List<InquiryModel> inquiries}) {
     return ListView.builder(
         itemCount: inquiries.length,
         itemBuilder: (context, index) =>

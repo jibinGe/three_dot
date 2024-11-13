@@ -5,6 +5,7 @@ import 'package:three_dot/features/inquiry/presentation/admin_dashboard.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_form_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_list_screen.dart';
 import 'package:three_dot/features/products/presentation/screens/procducts_screen.dart';
+import 'package:three_dot/features/project/presentation/screens/projects_screen.dart';
 import 'package:three_dot/shared/services/location_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
@@ -43,6 +44,7 @@ class MyApp extends ConsumerWidget {
         '/admin_dashboard': (context) => AdminDashboard(),
         '/products': (context) => const ProductsScreen(),
         '/inquires': (context) => const InquiryListScreen(),
+        '/projects': (context) => const ProjectsListScreen(),
       },
     );
   }
