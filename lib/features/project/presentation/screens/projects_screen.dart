@@ -36,7 +36,7 @@ class ProjectsListScreen extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
       child: ListTile(
-        title: Text(project.id.toString()),
+        title: Text(project.projectName ?? project.id.toString()),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

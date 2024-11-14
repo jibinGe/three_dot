@@ -60,8 +60,8 @@ class ProjectRepository {
   Future<ProjectModel> createProject({
     required int inquiryId,
     required int statusId,
-    required int amountCollected,
-    required int balenceAmount,
+    required double amountCollected,
+    required double balenceAmount,
     required bool subsidyStatus,
     required String latestStatus,
   }) async {
@@ -88,6 +88,7 @@ class ProjectRepository {
       );
       debugPrint("Respones :${response.statusCode}");
       debugPrint("Respones :${response.statusMessage}");
+      debugPrint("Respones :${response.data}");
 
       return ProjectModel.fromJson(response.data);
     } catch (e) {
@@ -108,7 +109,7 @@ class ProjectRepository {
         ),
       );
       log(response.data.toString());
-      return ProjectModel.fromJson(response.data);
+      return ProjectModel.fromJson(response.data["data"]);
     } catch (e) {
       debugPrint('Failed to get project: $e');
       throw Exception('Failed to get project: $e');

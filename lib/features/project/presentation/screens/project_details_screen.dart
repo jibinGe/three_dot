@@ -75,8 +75,10 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
           'Project Overview',
           [
             _buildInfoRow('Status', project.latestStatus),
-            _buildInfoRow('Amount Collected', project.amountCollected),
-            _buildInfoRow('Amount Pending', project.amountPending),
+            _buildInfoRow(
+                'Amount Collected', project.amountCollected.toStringAsFixed(2)),
+            _buildInfoRow(
+                'Amount Pending', project.amountPending.toStringAsFixed(2)),
             _buildInfoRow(
                 'Subsidy Status', project.subsidyStatus ? 'Yes' : 'No'),
           ],
@@ -126,9 +128,9 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
         _buildSection(
           'Project Details',
           [
-            // _buildInfoRow('Created At', project.createdAt.toLocal().toString()),
-            // _buildInfoRow(
-            //     'Last Updated', project.lastUpdated.toLocal().toString()),
+            _buildInfoRow('Created At', project.createdAt.toLocal().toString()),
+            _buildInfoRow(
+                'Last Updated', project.lastUpdated.toLocal().toString()),
           ],
         ),
       ],

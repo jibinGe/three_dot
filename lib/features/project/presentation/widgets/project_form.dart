@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
+import 'package:three_dot/features/project/data/providers/projects_provider.dart';
+import 'package:three_dot/features/project/presentation/screens/project_details_screen.dart';
 
-class ProjectForm extends StatefulWidget {
+class ProjectForm extends ConsumerStatefulWidget {
   final InquiryModel inquiry;
   const ProjectForm({
-    super.key,
+    Key? key,
     required this.inquiry,
-  });
+  }) : super(key: key);
 
   @override
-  State<ProjectForm> createState() => _ProjectFormState();
+  ConsumerState<ProjectForm> createState() => _ProjectFormState();
 }
 
-class _ProjectFormState extends State<ProjectForm> {
+class _ProjectFormState extends ConsumerState<ProjectForm> {
   final _formKey = GlobalKey<FormState>();
   final _collectedAmountController = TextEditingController();
   final _balanceAmountController = TextEditingController();
@@ -221,5 +224,39 @@ class _ProjectFormState extends State<ProjectForm> {
     );
   }
 
-  void _submitForm() {}
+  void _submitForm() async {
+    final projectState = ref.watch(projectProvider);
+    if (_formKey.currentState!.validate()) {
+      try {
+        await ref.read(projectProvider.notifier).createProject(
+            amountCollected: double.parse(_collectedAmountController.text),
+            balenceAmount: double.parse(_balanceAmountController.text),
+            inquiryId: widget.inquiry.id,
+            latestStatus: _selectedStatus,
+            statusId: 1,
+            subsidyStatus: _isSubsisy);
+        // Refresh the Inquiry list
+        ref.refresh(projectProvider);
+
+        if (mounted) {
+          Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProjectDetailScreen(
+                projectId: widget.inquiry.id,
+                isJustCreated: true,
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.toString()}')),
+          );
+        }
+      }
+    }
+  }
 }

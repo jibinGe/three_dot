@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/project/data/model/projectModel.dart';
 import 'package:three_dot/features/project/data/providers/projects_list_provider.dart';
@@ -23,32 +24,29 @@ class ProjectNotifier extends StateNotifier<AsyncValue<ProjectModel?>> {
     }
   }
 
-  // Future<void> createInquiryStage1({
-  //   required String name,
-  //   required String consumerNumber,
-  //   required String address,
-  //   required String mobileNumber,
-  //   required String email,
-  //   required LocationModel location,
-  //   int? referredById,
-  // }) async {
-  //   state = const AsyncValue.loading();
-  //   debugPrint("Notifire called >>>>>>>>>>>>>>>>>>>>>>>");
-  //   try {
-  //     final inquiry = await _repository.createInquiryStage1(
-  //       name: name,
-  //       consumerNumber: consumerNumber,
-  //       address: address,
-  //       mobileNumber: mobileNumber,
-  //       email: email,
-  //       location: location,
-  //       referredById: referredById ?? 1,
-  //     );
-  //     state = AsyncValue.data(inquiry);
-  //   } catch (e, st) {
-  //     state = AsyncValue.error(e, st);
-  //   }
-  // }
+  Future<void> createProject({
+    required int inquiryId,
+    required int statusId,
+    required double amountCollected,
+    required double balenceAmount,
+    required bool subsidyStatus,
+    required String latestStatus,
+  }) async {
+    state = const AsyncValue.loading();
+    debugPrint("Notifire called >>>>>>>>>>>>>>>>>>>>>>>");
+    try {
+      final project = await _repository.createProject(
+          amountCollected: amountCollected,
+          balenceAmount: balenceAmount,
+          inquiryId: inquiryId,
+          latestStatus: latestStatus,
+          statusId: statusId,
+          subsidyStatus: subsidyStatus);
+      state = AsyncValue.data(project);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 
   // Future<void> updateInquiryStage2({
   //   required int inquiryId,
