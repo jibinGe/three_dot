@@ -24,7 +24,7 @@ class ProjectNotifier extends StateNotifier<AsyncValue<ProjectModel?>> {
     }
   }
 
-  Future<void> createProject({
+  Future<bool> createProject({
     required int inquiryId,
     required int statusId,
     required double amountCollected,
@@ -43,8 +43,13 @@ class ProjectNotifier extends StateNotifier<AsyncValue<ProjectModel?>> {
           statusId: statusId,
           subsidyStatus: subsidyStatus);
       state = AsyncValue.data(project);
+      if (project != null) {
+        return true;
+      }
+      return false;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
+      return false;
     }
   }
 

@@ -228,7 +228,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
     final projectState = ref.watch(projectProvider);
     if (_formKey.currentState!.validate()) {
       try {
-        await ref.read(projectProvider.notifier).createProject(
+        bool isSuccess = await ref.read(projectProvider.notifier).createProject(
             amountCollected: double.parse(_collectedAmountController.text),
             balenceAmount: double.parse(_balanceAmountController.text),
             inquiryId: widget.inquiry.id,
@@ -238,7 +238,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
         // Refresh the Inquiry list
         ref.refresh(projectProvider);
 
-        if (mounted) {
+        if (isSuccess) {
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,

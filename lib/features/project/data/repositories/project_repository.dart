@@ -57,7 +57,7 @@ class ProjectRepository {
     }
   }
 
-  Future<ProjectModel> createProject({
+  Future<ProjectModel?> createProject({
     required int inquiryId,
     required int statusId,
     required double amountCollected,
@@ -89,8 +89,10 @@ class ProjectRepository {
       debugPrint("Respones :${response.statusCode}");
       debugPrint("Respones :${response.statusMessage}");
       debugPrint("Respones :${response.data}");
-
-      return ProjectModel.fromJson(response.data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ProjectModel.fromJson(response.data);
+      }
+      return null;
     } catch (e) {
       throw Exception('Failed to create project: $e');
     }
