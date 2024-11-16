@@ -39,6 +39,7 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final inquiryState = ref.watch(inquiryProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('New Inquiry'),
@@ -135,7 +136,12 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: _submitForm,
-                child: const Text('Submit'),
+                child: inquiryState.isLoading
+                    ? LoadingAnimationWidget.threeArchedCircle(
+                        color: Colors.white,
+                        size: 24,
+                      )
+                    : const Text('Submit'),
               ),
             ),
           ],

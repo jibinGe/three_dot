@@ -60,8 +60,8 @@ class ProjectRepository {
   Future<ProjectModel?> createProject({
     required int inquiryId,
     required int statusId,
-    required double amountCollected,
-    required double balenceAmount,
+    required int amountCollected,
+    required int balenceAmount,
     required bool subsidyStatus,
     required String latestStatus,
   }) async {

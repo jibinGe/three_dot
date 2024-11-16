@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/project/data/providers/projects_provider.dart';
 import 'package:three_dot/features/project/presentation/screens/project_details_screen.dart';
@@ -19,7 +20,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
   final _formKey = GlobalKey<FormState>();
   final _collectedAmountController = TextEditingController();
   final _balanceAmountController = TextEditingController();
-  String _selectedStatus = 'status 1';
+  String _selectedStatus = 'waiting_for_confirmation';
   bool _isSubsisy = false;
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
 
   @override
   Widget build(BuildContext context) {
+    final projectState = ref.watch(projectProvider);
     return Form(
       key: _formKey,
       child: ListView(
@@ -124,7 +126,12 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
             height: 50,
             child: ElevatedButton(
               onPressed: _submitForm,
-              child: const Text('Start Project'),
+              child: projectState.isLoading
+                  ? LoadingAnimationWidget.threeArchedCircle(
+                      color: Colors.white,
+                      size: 24,
+                    )
+                  : const Text('Start Project'),
             ),
           ),
         ],
@@ -154,16 +161,20 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
               ),
               items: const [
                 DropdownMenuItem(
-                  value: 'status 1',
-                  child: Text('Status 1'),
+                  value: 'waiting_for_confirmation',
+                  child: Text('Waiting'),
                 ),
                 DropdownMenuItem(
-                  value: 'status 2',
-                  child: Text('Status 2'),
+                  value: 'not_started',
+                  child: Text('Not Started'),
                 ),
                 DropdownMenuItem(
-                  value: 'Status 3',
-                  child: Text('Status 3'),
+                  value: 'accepted',
+                  child: Text('Accepted'),
+                ),
+                DropdownMenuItem(
+                  value: 'rejected',
+                  child: Text('Rejected'),
                 ),
               ],
               onChanged: (value) {
@@ -225,8 +236,11 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
   }
 
   void _submitForm() async {
+    print("button clicked");
     final projectState = ref.watch(projectProvider);
+    print(projectState);
     if (_formKey.currentState!.validate()) {
+      print("validated");
       try {
         bool isSuccess = await ref.read(projectProvider.notifier).createProject(
             amountCollected: double.parse(_collectedAmountController.text),
@@ -235,6 +249,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
             latestStatus: _selectedStatus,
             statusId: 1,
             subsidyStatus: _isSubsisy);
+        print("is Success : $isSuccess");
         // Refresh the Inquiry list
         ref.refresh(projectProvider);
 
@@ -251,12 +266,15 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
           );
         }
       } catch (e) {
+        print(e.toString());
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${e.toString()}')),
           );
         }
       }
+    } else {
+      print("not validate");
     }
   }
 }

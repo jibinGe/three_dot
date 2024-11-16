@@ -32,12 +32,13 @@ class ProjectNotifier extends StateNotifier<AsyncValue<ProjectModel?>> {
     required bool subsidyStatus,
     required String latestStatus,
   }) async {
+    debugPrint("Notifire called >>>>>>>>>>>>>>>>>>>>>>>");
     state = const AsyncValue.loading();
     debugPrint("Notifire called >>>>>>>>>>>>>>>>>>>>>>>");
     try {
       final project = await _repository.createProject(
-          amountCollected: amountCollected,
-          balenceAmount: balenceAmount,
+          amountCollected: amountCollected.toInt(),
+          balenceAmount: balenceAmount.toInt(),
           inquiryId: inquiryId,
           latestStatus: latestStatus,
           statusId: statusId,
