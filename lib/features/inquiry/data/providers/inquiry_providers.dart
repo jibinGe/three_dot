@@ -49,6 +49,7 @@ class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
         location: location,
         referredById: referredById ?? 1,
       );
+
       state = AsyncValue.data(inquiry);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

@@ -136,12 +136,7 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: _submitForm,
-                child: inquiryState.isLoading
-                    ? LoadingAnimationWidget.threeArchedCircle(
-                        color: Colors.white,
-                        size: 24,
-                      )
-                    : const Text('Submit'),
+                child: const Text('Submit'),
               ),
             ),
           ],

@@ -70,7 +70,7 @@ class ProjectRepository {
 
     try {
       final response = await _dio.post(
-        '/Projects/projects',
+        '/Projects/projects/',
         data: {
           "inquiry_id": inquiryId,
           "status_id": statusId,
@@ -90,7 +90,7 @@ class ProjectRepository {
       debugPrint("Respones :${response.statusMessage}");
       debugPrint("Respones :${response.data}");
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return ProjectModel.fromJson(response.data);
+        return ProjectModel.fromJson(response.data['data']);
       }
       return null;
     } catch (e) {

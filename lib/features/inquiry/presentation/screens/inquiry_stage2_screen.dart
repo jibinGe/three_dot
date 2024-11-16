@@ -188,12 +188,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
             height: 50,
             child: ElevatedButton(
               onPressed: _submitForm,
-              child: inquiryState.isLoading
-                  ? LoadingAnimationWidget.threeArchedCircle(
-                      color: Colors.white,
-                      size: 24,
-                    )
-                  : const Text('Save Technical Details'),
+              child: const Text('Save Technical Details'),
             ),
           ),
         ],
