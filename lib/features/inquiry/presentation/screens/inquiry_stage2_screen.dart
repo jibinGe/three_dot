@@ -23,56 +23,89 @@ class InquiryStage2Screen extends ConsumerStatefulWidget {
 
 class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   final _formKey = GlobalKey<FormState>();
+
+  // Controllers
+  late final TextEditingController _roofSpecificationController;
+  late final TextEditingController _proposedAmountController;
+  late final TextEditingController _proposedCapacityController;
+  late final TextEditingController _confirmationRejectionController;
+  late final TextEditingController _quotationRejectionController;
+  late final TextEditingController _paymentTermsController;
+
+  // State Variables
   String _selectedRoofType = 'normal';
   String _selectedQuotationStatus = 'pending';
   String _selectedConfirmationStatus = 'pending';
-  final _roofSpecificationController = TextEditingController();
-  final _proposedAmountController = TextEditingController();
-  final _proposedCapacityController = TextEditingController();
-
-  final _confirmationRejectionController = TextEditingController();
-  final _quotationRejectionController = TextEditingController();
-  final _paymentTermsController = TextEditingController();
   final List<SelectedProductModel> _selectedProducts = [];
 
   @override
   void initState() {
     super.initState();
+    _initializeControllers();
     _loadInquiryData();
   }
 
+  void _initializeControllers() {
+    _roofSpecificationController = TextEditingController();
+    _proposedAmountController = TextEditingController();
+    _proposedCapacityController = TextEditingController();
+    _confirmationRejectionController = TextEditingController();
+    _quotationRejectionController = TextEditingController();
+    _paymentTermsController = TextEditingController();
+  }
+
   void _loadInquiryData() async {
-    await ref.read(inquiryProvider.notifier).getInquiry(widget.inquiryId);
-    final inquiry = ref.read(inquiryProvider).value;
-    if (inquiry != null) {
-      setState(() {
-        _selectedRoofType = inquiry.roofType;
-        _selectedQuotationStatus = inquiry.quotationStatus;
-        _selectedConfirmationStatus = inquiry.confirmationStatus;
-        _selectedQuotationStatus = inquiry.quotationStatus;
-        _selectedConfirmationStatus = inquiry.confirmationStatus;
-        _roofSpecificationController.text = inquiry.roofSpecification;
-        _proposedAmountController.text = inquiry.proposedAmount.toString();
-        _proposedCapacityController.text = inquiry.proposedCapacity.toString();
-        _quotationRejectionController.text =
-            inquiry.quotationRejectionReason ?? "";
-        _confirmationRejectionController.text =
-            inquiry.confirmationStatus ?? "";
-        _paymentTermsController.text = inquiry.paymentTerms;
-        _selectedProducts
-            .addAll(inquiry.selectedProducts ?? <SelectedProductModel>[]);
-      });
+    try {
+      await ref
+          .read(inquiryNotifierProvider.notifier)
+          .getInquiry(widget.inquiryId);
+
+      final inquiry = ref.read(inquiryNotifierProvider).inquiry;
+      if (inquiry != null) {
+        _updateStateFromInquiry(inquiry);
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error loading inquiry data');
     }
+  }
+
+  void _updateStateFromInquiry(dynamic inquiry) {
+    setState(() {
+      _selectedRoofType = inquiry.roofType;
+      _selectedQuotationStatus = inquiry.quotationStatus;
+      _selectedConfirmationStatus = inquiry.confirmationStatus;
+      _roofSpecificationController.text = inquiry.roofSpecification;
+      _proposedAmountController.text = inquiry.proposedAmount.toString();
+      _proposedCapacityController.text = inquiry.proposedCapacity.toString();
+      _quotationRejectionController.text =
+          inquiry.quotationRejectionReason ?? "";
+      _confirmationRejectionController.text =
+          inquiry.confirmationRejectionReason ?? "";
+      _paymentTermsController.text = inquiry.paymentTerms;
+      _selectedProducts
+          .addAll(inquiry.selectedProducts ?? <SelectedProductModel>[]);
+    });
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
   void dispose() {
+    _disposeControllers();
+    super.dispose();
+  }
+
+  void _disposeControllers() {
     _roofSpecificationController.dispose();
     _proposedAmountController.dispose();
+    _proposedCapacityController.dispose();
     _confirmationRejectionController.dispose();
     _quotationRejectionController.dispose();
     _paymentTermsController.dispose();
-    super.dispose();
   }
 
   @override
@@ -99,7 +132,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   }
 
   Form _buildForm(List<Product> products) {
-    final inquiryState = ref.watch(inquiryProvider);
+    final inquiryState = ref.watch(inquiryNotifierProvider);
     return Form(
       key: _formKey,
       child: ListView(
@@ -129,7 +162,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
               labelText: 'Proposed Amount',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.attach_money),
-              prefixText: '₹',
+              prefixText: '₹  ',
             ),
             keyboardType: TextInputType.number,
             validator: (value) {
@@ -518,7 +551,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await ref.read(inquiryProvider.notifier).updateInquiryStage2(
+        await ref.read(inquiryNotifierProvider.notifier).updateInquiryStage2(
               inquiryId: widget.inquiryId,
               roofType: _selectedRoofType,
               quotationStatus: _selectedQuotationStatus,
@@ -541,11 +574,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
           );
         }
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${e.toString()}')),
-          );
-        }
+        _showErrorSnackBar('Error saving technical details: ${e.toString()}');
       }
     }
   }
