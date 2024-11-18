@@ -90,8 +90,6 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
       // Determine if we're adding or updating
       if (state.initialProduct == null) {
-        // Add new product
-        // Implement your API call to add product
         await repository.addProduct(product);
       } else {
         // Update existing product

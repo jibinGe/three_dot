@@ -1,26 +1,48 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:three_dot/features/project/data/model/projectModel.dart';
-import 'package:three_dot/features/project/data/providers/projects_list_provider.dart';
+import 'package:three_dot/features/project/data/model/project_state.dart';
 import 'package:three_dot/features/project/data/repositories/project_repository.dart';
 
-final projectProvider =
-    StateNotifierProvider<ProjectNotifier, AsyncValue<ProjectModel?>>((ref) {
+final projectRepositoryProvider = Provider((ref) => ProjectRepository());
+
+final projectStateProvider =
+    StateNotifierProvider<ProjectNotifier, ProjectState>((ref) {
   return ProjectNotifier(ref.watch(projectRepositoryProvider));
 });
 
-class ProjectNotifier extends StateNotifier<AsyncValue<ProjectModel?>> {
+class ProjectNotifier extends StateNotifier<ProjectState> {
   final ProjectRepository _repository;
 
-  ProjectNotifier(this._repository) : super(const AsyncValue.data(null));
+  ProjectNotifier(this._repository) : super(const ProjectState());
+
+  Future<void> loadProjects() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final projects = await _repository.getAllProjects();
+      state = state.copyWith(
+        isLoading: false,
+        projects: projects,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
 
   Future<void> getProject(int id) async {
-    state = const AsyncValue.loading();
+    state = state.copyWith(isLoading: true, error: null);
     try {
-      final inquiry = await _repository.getProject(id);
-      state = AsyncValue.data(inquiry);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      final project = await _repository.getProject(id);
+      state = state.copyWith(
+        isLoading: false,
+        selectedProject: project,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
     }
   }
 
@@ -32,59 +54,29 @@ class ProjectNotifier extends StateNotifier<AsyncValue<ProjectModel?>> {
     required bool subsidyStatus,
     required String latestStatus,
   }) async {
-    debugPrint("Notifire called >>>>>>>>>>>>>>>>>>>>>>>");
-    state = const AsyncValue.loading();
-    debugPrint("Notifire called >>>>>>>>>>>>>>>>>>>>>>>");
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final project = await _repository.createProject(
-          amountCollected: amountCollected.toInt(),
-          balenceAmount: balenceAmount.toInt(),
-          inquiryId: inquiryId,
-          latestStatus: latestStatus,
-          statusId: statusId,
-          subsidyStatus: subsidyStatus);
-      state = AsyncValue.data(project);
+        inquiryId: inquiryId,
+        statusId: statusId,
+        amountCollected: amountCollected.toInt(),
+        balenceAmount: balenceAmount.toInt(),
+        subsidyStatus: subsidyStatus,
+        latestStatus: latestStatus,
+      );
+
       if (project != null) {
+        // Refresh projects list after successful creation
+        await loadProjects();
         return true;
       }
       return false;
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
       return false;
     }
   }
-
-  // Future<void> updateInquiryStage2({
-  //   required int inquiryId,
-  //   required String roofType,
-  //   required String quotationStatus,
-  //   required String confirmationStatus,
-  //   required String roofSpecification,
-  //   required double proposedAmount,
-  //   required double proposedCapacity,
-  //   required String paymentTerms,
-  //   required String quotationRejectionReason,
-  //   required String confirmationRejectionReason,
-  //   required List<SelectedProductModel> selectedProducts,
-  // }) async {
-  //   state = const AsyncValue.loading();
-  //   try {
-  //     final inquiry = await _repository.updateInquiryStage2(
-  //       inquiryId: inquiryId,
-  //       roofType: roofType,
-  //       quotationStatus: quotationStatus,
-  //       confirmationStatus: confirmationStatus,
-  //       roofSpecification: roofSpecification,
-  //       quotationRejectionReason: quotationRejectionReason,
-  //       confirmationRejectionReason: confirmationRejectionReason,
-  //       proposedAmount: proposedAmount,
-  //       proposedCapacity: proposedCapacity,
-  //       paymentTerms: paymentTerms,
-  //       selectedProducts: selectedProducts,
-  //     );
-  //     state = AsyncValue.data(inquiry);
-  //   } catch (e, st) {
-  //     state = AsyncValue.error(e, st);
-  //   }
-  // }
 }

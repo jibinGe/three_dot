@@ -22,6 +22,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
   final _balanceAmountController = TextEditingController();
   String _selectedStatus = 'waiting_for_confirmation';
   bool _isSubsisy = false;
+
   @override
   void initState() {
     super.initState();
@@ -39,40 +40,36 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
   void dispose() {
     _collectedAmountController.dispose();
     _balanceAmountController.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final projectState = ref.watch(projectProvider);
+    final state = ref.watch(projectStateProvider);
+
     return Form(
       key: _formKey,
       child: ListView(
         shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
         children: [
-          SizedBox(
-            height: 15,
-          ),
-          Center(
+          const SizedBox(height: 15),
+          const Center(
             child: Text(
               "Start Project",
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          SizedBox(
-            height: 30,
-          ),
+          const SizedBox(height: 30),
           TextFormField(
             controller: _collectedAmountController,
             onChanged: (value) {
               double balance =
-                  widget.inquiry.proposedAmount - double.parse(value);
+                  widget.inquiry.proposedAmount - (double.tryParse(value) ?? 0);
               setState(() {
                 _balanceAmountController.text = balance.toString();
               });
@@ -97,11 +94,9 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
           const SizedBox(height: 20),
           TextFormField(
             controller: _balanceAmountController,
-            onChanged: (value) {},
-            // enabled: false,
             readOnly: true,
             decoration: const InputDecoration(
-              labelText: 'balance Amount',
+              labelText: 'Balance Amount',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.attach_money),
               prefixText: '₹ ',
@@ -109,7 +104,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
             keyboardType: TextInputType.number,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter bal amount';
+                return 'Please enter balance amount';
               }
               if (double.tryParse(value) == null) {
                 return 'Please enter a valid amount';
@@ -126,7 +121,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
             height: 50,
             child: ElevatedButton(
               onPressed: _submitForm,
-              child: projectState.isLoading
+              child: state.isLoading
                   ? LoadingAnimationWidget.threeArchedCircle(
                       color: Colors.white,
                       size: 24,
@@ -236,24 +231,20 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
   }
 
   void _submitForm() async {
-    print("button clicked");
-    final projectState = ref.watch(projectProvider);
-    print(projectState);
     if (_formKey.currentState!.validate()) {
-      print("validated");
       try {
-        bool isSuccess = await ref.read(projectProvider.notifier).createProject(
-            amountCollected: double.parse(_collectedAmountController.text),
-            balenceAmount: double.parse(_balanceAmountController.text),
-            inquiryId: widget.inquiry.id,
-            latestStatus: _selectedStatus,
-            statusId: 1,
-            subsidyStatus: _isSubsisy);
-        print("is Success : $isSuccess");
-        // Refresh the Inquiry list
-        ref.refresh(projectProvider);
+        bool isSuccess = await ref
+            .read(projectStateProvider.notifier)
+            .createProject(
+              amountCollected: double.parse(_collectedAmountController.text),
+              balenceAmount: double.parse(_balanceAmountController.text),
+              inquiryId: widget.inquiry.id,
+              latestStatus: _selectedStatus,
+              statusId: 1,
+              subsidyStatus: _isSubsisy,
+            );
 
-        if (isSuccess) {
+        if (isSuccess && mounted) {
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,
@@ -266,15 +257,12 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
           );
         }
       } catch (e) {
-        print(e.toString());
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${e.toString()}')),
           );
         }
       }
-    } else {
-      print("not validate");
     }
   }
 }

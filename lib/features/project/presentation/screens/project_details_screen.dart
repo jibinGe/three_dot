@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/project/data/model/projectModel.dart';
-
 import 'package:three_dot/features/project/data/providers/projects_provider.dart';
-import 'package:three_dot/features/project/presentation/widgets/project_form.dart';
 
 class ProjectDetailScreen extends ConsumerStatefulWidget {
   final int projectId;
@@ -22,48 +20,27 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Load project details
     if (!widget.isJustCreated!) {
       Future.microtask(() =>
-          ref.read(projectProvider.notifier).getProject(widget.projectId));
+          ref.read(projectStateProvider.notifier).getProject(widget.projectId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final projectState = ref.watch(projectProvider);
+    final state = ref.watch(projectStateProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Project Details'),
-        actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.edit),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => ProjectForm(
-          //           projectId: widget.projectId,
-          //         ),
-          //       ),
-          //     );
-          //   },
-          // ),
-        ],
       ),
-      body: projectState.when(
-        data: (project) {
-          if (project == null) {
-            return const Center(child: Text('No data available'));
-          }
-          return _buildProjectDetails(project);
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text('Error: ${error.toString()}'),
-        ),
-      ),
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : state.error != null
+              ? Center(child: Text('Error: ${state.error}'))
+              : state.selectedProject == null
+                  ? const Center(child: Text('No data available'))
+                  : _buildProjectDetails(state.selectedProject!),
     );
   }
 
