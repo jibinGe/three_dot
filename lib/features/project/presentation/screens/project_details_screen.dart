@@ -51,6 +51,8 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
         _buildSection(
           'Project Overview',
           [
+            _buildInfoRow('Customer Name', project.customerName),
+            _buildInfoRow('Inquiry No', project.inquiryNumber),
             _buildInfoRow('Status', project.latestStatus),
             _buildInfoRow(
                 'Amount Collected', project.amountCollected.toStringAsFixed(2)),

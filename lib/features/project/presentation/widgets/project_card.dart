@@ -18,7 +18,7 @@ class ProjectCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        title: Text(project.projectName ?? project.id.toString()),
+        title: Text(project.customerName ?? project.id.toString()),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

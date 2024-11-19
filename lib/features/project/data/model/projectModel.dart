@@ -2,6 +2,8 @@ class ProjectModel {
   final int inquiryId;
   final int statusId;
   final String? projectName;
+  final String inquiryNumber; // New field
+  final String customerName; // New field
   final String latestStatus;
   final double amountCollected;
   final double amountPending;
@@ -25,6 +27,8 @@ class ProjectModel {
     required this.amountPending,
     required this.subsidyStatus,
     required this.id,
+    required this.inquiryNumber,
+    required this.customerName,
     this.projectName,
     this.feasibilityApprovalDate,
     this.agreementUploadDate,
@@ -42,6 +46,8 @@ class ProjectModel {
     return ProjectModel(
       inquiryId: json['inquiry_id'],
       projectName: json['inquiry_name'],
+      customerName: json['customer_name'],
+      inquiryNumber: json['inquiry_number'],
       statusId: json['status_id'],
       latestStatus: json['latest_status'],
       amountCollected: double.parse(json['amount_collected']),
