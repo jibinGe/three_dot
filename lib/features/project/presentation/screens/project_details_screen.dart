@@ -2,45 +2,75 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/project/data/model/projectModel.dart';
 import 'package:three_dot/features/project/data/providers/projects_provider.dart';
+import 'package:three_dot/features/project/presentation/widgets/project_timeline.dart';
 
 class ProjectDetailScreen extends ConsumerStatefulWidget {
   final int projectId;
   final bool? isJustCreated;
 
-  const ProjectDetailScreen(
-      {Key? key, required this.projectId, this.isJustCreated = false})
-      : super(key: key);
+  const ProjectDetailScreen({
+    Key? key,
+    required this.projectId,
+    this.isJustCreated = false,
+  }) : super(key: key);
 
   @override
   ConsumerState<ProjectDetailScreen> createState() =>
       _ProjectDetailScreenState();
 }
 
-class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
+class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     if (!widget.isJustCreated!) {
-      Future.microtask(() =>
-          ref.read(projectStateProvider.notifier).getProject(widget.projectId));
+      Future.microtask(() {
+        ref.read(projectStateProvider.notifier).getProject(widget.projectId);
+        ref
+            .read(projectTimelineProvider.notifier)
+            .getTimeline(widget.projectId);
+      });
     }
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final state = ref.watch(projectStateProvider);
+    final projectState = ref.watch(projectStateProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Project Details'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Details'),
+            Tab(text: 'Timeline'),
+          ],
+        ),
       ),
-      body: state.isLoading
+      body: projectState.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : state.error != null
-              ? Center(child: Text('Error: ${state.error}'))
-              : state.selectedProject == null
+          : projectState.error != null
+              ? Center(child: Text('Error: ${projectState.error}'))
+              : projectState.selectedProject == null
                   ? const Center(child: Text('No data available'))
-                  : _buildProjectDetails(state.selectedProject!),
+                  : TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildProjectDetails(projectState.selectedProject!),
+                        ProjectTimelineScreen(projectId: widget.projectId),
+                      ],
+                    ),
     );
   }
 

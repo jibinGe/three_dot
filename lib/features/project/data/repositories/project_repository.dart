@@ -7,6 +7,7 @@ import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/inquiry/data/models/location_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/project/data/model/projectModel.dart';
+import 'package:three_dot/features/project/data/model/project_timeline_model.dart';
 import 'package:three_dot/shared/services/storage_service.dart';
 
 class ProjectRepository {
@@ -161,6 +162,25 @@ class ProjectRepository {
       return InquiryModel.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to update inquiry: $e');
+    }
+  }
+
+  Future<ProjectTimelineModel> getProjectTimeline(int projectId) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.get(
+        '/Workflow/timeline/$projectId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+      return ProjectTimelineModel.fromJson(response.data);
+    } catch (e) {
+      debugPrint('Failed to get project timeline: $e');
+      throw Exception('Failed to get project timeline: $e');
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/project/data/model/project_state.dart';
+import 'package:three_dot/features/project/data/model/project_timeline_state.dart';
 import 'package:three_dot/features/project/data/repositories/project_repository.dart';
 
 final projectRepositoryProvider = Provider((ref) => ProjectRepository());
@@ -7,6 +8,10 @@ final projectRepositoryProvider = Provider((ref) => ProjectRepository());
 final projectStateProvider =
     StateNotifierProvider<ProjectNotifier, ProjectState>((ref) {
   return ProjectNotifier(ref.watch(projectRepositoryProvider));
+});
+final projectTimelineProvider =
+    StateNotifierProvider<ProjectTimelineNotifier, ProjectTimelineState>((ref) {
+  return ProjectTimelineNotifier(ref.watch(projectRepositoryProvider));
 });
 
 class ProjectNotifier extends StateNotifier<ProjectState> {
@@ -79,6 +84,29 @@ class ProjectNotifier extends StateNotifier<ProjectState> {
         error: e.toString(),
       );
       return false;
+    }
+  }
+}
+
+class ProjectTimelineNotifier extends StateNotifier<ProjectTimelineState> {
+  final ProjectRepository _repository;
+
+  ProjectTimelineNotifier(this._repository)
+      : super(const ProjectTimelineState());
+
+  Future<void> getTimeline(int projectId) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final timeline = await _repository.getProjectTimeline(projectId);
+      state = state.copyWith(
+        isLoading: false,
+        timeline: timeline,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
     }
   }
 }

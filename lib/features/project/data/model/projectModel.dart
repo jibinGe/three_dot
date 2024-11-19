@@ -2,8 +2,8 @@ class ProjectModel {
   final int inquiryId;
   final int statusId;
   final String? projectName;
-  final String inquiryNumber; // New field
-  final String customerName; // New field
+  final String inquiryNumber;
+  final String customerName;
   final String latestStatus;
   final double amountCollected;
   final double amountPending;
