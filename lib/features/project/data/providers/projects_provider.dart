@@ -67,7 +67,9 @@ class ProjectNotifier extends StateNotifier<ProjectState> {
 
       if (project != null) {
         // Refresh projects list after successful creation
-        await loadProjects();
+        state = state.copyWith(
+            isLoading: false, error: null, selectedProject: project);
+        loadProjects();
         return true;
       }
       return false;

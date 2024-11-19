@@ -25,21 +25,22 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Load inquiry details
-    if (!widget.isJustCreated!) {
-      Future.microtask(() =>
-          ref.read(inquiryProvider.notifier).getInquiry(widget.inquiryId));
+    if (!(widget.isJustCreated ?? false)) {
+      Future.microtask(() => ref
+          .read(inquiryNotifierProvider.notifier)
+          .getInquiry(widget.inquiryId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final inquiryState = ref.watch(inquiryProvider);
+    final inquiryState = ref.watch(inquiryNotifierProvider);
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Inquiry Details'),
-          actions: [
+      appBar: AppBar(
+        title: const Text('Inquiry Details'),
+        actions: [
+          if (inquiryState.inquiry != null)
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
@@ -53,40 +54,54 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
                 );
               },
             ),
-          ],
-        ),
-        body: inquiryState.when(
-          data: (inquiry) {
-            if (inquiry == null) {
-              return const Center(child: Text('No data available'));
-            }
-            return _buildInquiryDetails(inquiry);
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(
-            child: Text('Error: ${error.toString()}'),
-          ),
-        ),
-        floatingActionButton: inquiryState.when(
-          data: (inquiry) {
-            if (inquiry == null) {
-              return SizedBox();
-            }
-            return ElevatedButton.icon(
-              icon: Icon(Icons.build),
+        ],
+      ),
+      body: Builder(
+        builder: (context) {
+          if (inquiryState.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (inquiryState.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${inquiryState.error}'),
+                  ElevatedButton(
+                    onPressed: () => ref
+                        .read(inquiryNotifierProvider.notifier)
+                        .getInquiry(widget.inquiryId),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final inquiry = inquiryState.inquiry;
+          if (inquiry == null) {
+            return const Center(child: Text('No data available'));
+          }
+
+          return _buildInquiryDetails(inquiry);
+        },
+      ),
+      floatingActionButton: inquiryState.inquiry != null
+          ? ElevatedButton.icon(
+              icon: const Icon(Icons.build),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  builder: (context) => ProjectForm(inquiry: inquiry),
+                  builder: (context) =>
+                      ProjectForm(inquiry: inquiryState.inquiry!),
                 );
               },
-              label: Text("Start Project"),
-            );
-          },
-          loading: () => const SizedBox.shrink(),
-          error: (error, stack) => SizedBox.shrink(),
-        ));
+              label: const Text("Start Project"),
+            )
+          : null,
+    );
   }
 
   Widget _buildInquiryDetails(InquiryModel inquiry) {
@@ -126,7 +141,7 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
             ])
           ],
         ),
-        if (inquiry.roofType != "") ...[
+        if (inquiry.roofType.isNotEmpty) ...[
           const SizedBox(height: 16),
           _buildSection(
             'Technical Details',
@@ -153,11 +168,11 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
         ],
         _buildSection("Quotation Details", [
           _buildInfoRow(
-            'Quotation Satatus',
+            'Quotation Status',
             inquiry.quotationStatus,
           ),
           _buildInfoRow(
-            'Confirmation Satatus',
+            'Confirmation Status',
             inquiry.confirmationStatus,
           ),
           _buildInfoRow(
@@ -203,7 +218,6 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
         children: [
           Expanded(
             flex: 4,
-            // width: 120,
             child: Text(
               label,
               style: const TextStyle(

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:three_dot/core/theme/app_colors.dart';
 import 'package:three_dot/features/inquiry/data/models/location_model.dart';
-import 'package:three_dot/features/inquiry/data/providers/inquiry_list_provider.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_detail_screen.dart';
 import 'package:three_dot/shared/services/location_service.dart';
@@ -39,7 +37,7 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inquiryState = ref.watch(inquiryProvider);
+    final inquiryState = ref.watch(inquiryNotifierProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('New Inquiry'),
@@ -123,10 +121,10 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter email';
                 }
-                if (!value.contains('@')) {
-                  return 'Please enter valid email';
-                }
-                return null;
+                final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                return !emailRegex.hasMatch(value)
+                    ? 'Enter a valid email'
+                    : null;
               },
             ),
             const SizedBox(height: 16),
@@ -136,7 +134,10 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: _submitForm,
-                child: const Text('Submit'),
+                child: inquiryState.isLoading
+                    ? LoadingAnimationWidget.threeRotatingDots(
+                        color: Colors.white, size: 30)
+                    : const Text('Submit'),
               ),
             ),
           ],
@@ -216,7 +217,6 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
   }
 
   void _submitForm() async {
-    final inquiryState = ref.watch(inquiryProvider);
     if (_formKey.currentState!.validate()) {
       if (_latitude == null || _longitude == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -226,7 +226,7 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
       }
 
       try {
-        await ref.read(inquiryProvider.notifier).createInquiryStage1(
+        await ref.read(inquiryNotifierProvider.notifier).createInquiryStage1(
               name: _nameController.text,
               consumerNumber: _consumerNumberController.text,
               address: _addressController.text,
@@ -237,8 +237,6 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
                 lng: _longitude!,
               ),
             );
-        // Refresh the Inquiry list
-        ref.refresh(inquiryListProvider);
 
         if (mounted) {
           Navigator.pushReplacement(

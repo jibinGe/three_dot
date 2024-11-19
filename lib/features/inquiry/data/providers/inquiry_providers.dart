@@ -1,30 +1,52 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
+import 'package:three_dot/features/inquiry/data/models/inquiry_state.dart';
 import 'package:three_dot/features/inquiry/data/models/location_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
-import 'package:three_dot/features/inquiry/data/providers/inquiry_list_provider.dart';
 import 'package:three_dot/features/inquiry/data/repositories/inquiry_repository.dart';
 
-final inquiryRepositoryProvider = Provider((ref) => InquiryRepository());
+final inquiryRepositoryProvider = Provider<InquiryRepository>((ref) {
+  return InquiryRepository();
+});
 
-final inquiryProvider =
-    StateNotifierProvider<InquiryNotifier, AsyncValue<InquiryModel?>>((ref) {
+final inquiryNotifierProvider =
+    StateNotifierProvider<InquiryNotifier, InquiryState>((ref) {
   return InquiryNotifier(ref.watch(inquiryRepositoryProvider));
 });
 
-class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
+class InquiryNotifier extends StateNotifier<InquiryState> {
   final InquiryRepository _repository;
 
-  InquiryNotifier(this._repository) : super(const AsyncValue.data(null));
+  InquiryNotifier(this._repository) : super(const InquiryState());
+
+  Future<void> getAllInquiries() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final inquiries = await _repository.getAllInquiries();
+      state = state.copyWith(
+        isLoading: false,
+        inquiries: inquiries,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
 
   Future<void> getInquiry(int id) async {
-    state = const AsyncValue.loading();
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.getInquiry(id);
-      state = AsyncValue.data(inquiry);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
     }
   }
 
@@ -37,8 +59,7 @@ class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
     required LocationModel location,
     int? referredById,
   }) async {
-    state = const AsyncValue.loading();
-    debugPrint("Notifire called >>>>>>>>>>>>>>>>>>>>>>>");
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.createInquiryStage1(
         name: name,
@@ -49,10 +70,16 @@ class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
         location: location,
         referredById: referredById ?? 1,
       );
-
-      state = AsyncValue.data(inquiry);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      getAllInquiries();
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
     }
   }
 
@@ -69,7 +96,7 @@ class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
     required String confirmationRejectionReason,
     required List<SelectedProductModel> selectedProducts,
   }) async {
-    state = const AsyncValue.loading();
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.updateInquiryStage2(
         inquiryId: inquiryId,
@@ -77,16 +104,22 @@ class InquiryNotifier extends StateNotifier<AsyncValue<InquiryModel?>> {
         quotationStatus: quotationStatus,
         confirmationStatus: confirmationStatus,
         roofSpecification: roofSpecification,
-        quotationRejectionReason: quotationRejectionReason,
-        confirmationRejectionReason: confirmationRejectionReason,
         proposedAmount: proposedAmount,
         proposedCapacity: proposedCapacity,
         paymentTerms: paymentTerms,
+        quotationRejectionReason: quotationRejectionReason,
+        confirmationRejectionReason: confirmationRejectionReason,
         selectedProducts: selectedProducts,
       );
-      state = AsyncValue.data(inquiry);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
     }
   }
 }
