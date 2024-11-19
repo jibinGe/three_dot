@@ -6,6 +6,7 @@ import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_stage2_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/widgets/products_table.dart';
 import 'package:three_dot/features/project/presentation/widgets/project_form.dart';
+import 'package:three_dot/shared/services/location_service.dart';
 
 class InquiryDetailScreen extends ConsumerStatefulWidget {
   final int inquiryId;
@@ -110,6 +111,19 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
               'Coordinates',
               'Lat: ${inquiry.location.lat}, Long: ${inquiry.location.lng}',
             ),
+            Row(children: [
+              Spacer(),
+              Transform.scale(
+                scale: 0.7,
+                child: ElevatedButton.icon(
+                    onPressed: () {
+                      LocationService.launchMap(
+                          inquiry.location.lat, inquiry.location.lng);
+                    },
+                    icon: Icon(Icons.location_on),
+                    label: Text("Open Map")),
+              )
+            ])
           ],
         ),
         if (inquiry.roofType != "") ...[
