@@ -12,9 +12,11 @@ class InquiryDetailScreen extends ConsumerStatefulWidget {
   final int inquiryId;
   final bool? isJustCreated;
 
-  const InquiryDetailScreen(
-      {Key? key, required this.inquiryId, this.isJustCreated = false})
-      : super(key: key);
+  const InquiryDetailScreen({
+    Key? key,
+    required this.inquiryId,
+    this.isJustCreated = false,
+  }) : super(key: key);
 
   @override
   ConsumerState<InquiryDetailScreen> createState() =>
@@ -112,49 +114,60 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
           'Basic Information',
           [
             _buildInfoRow('Name', inquiry.name),
-            _buildInfoRow('Consumer Number', inquiry.consumerNumber),
-            _buildInfoRow('Mobile', inquiry.mobileNumber),
-            _buildInfoRow('Email', inquiry.email),
+            _buildInfoRow('Consumer Number', inquiry.consumerNumber ?? 'N/A'),
+            _buildInfoRow('Mobile', inquiry.mobileNumber ?? 'N/A'),
+            _buildInfoRow('Email', inquiry.email ?? 'N/A'),
           ],
         ),
         const SizedBox(height: 16),
         _buildSection(
           'Location Details',
           [
-            _buildInfoRow('Address', inquiry.address),
+            _buildInfoRow('Address', inquiry.address ?? 'N/A'),
             _buildInfoRow(
               'Coordinates',
-              'Lat: ${inquiry.location.lat}, Long: ${inquiry.location.lng}',
+              inquiry.location != null
+                  ? 'Lat: ${inquiry.location!.lat}, Long: ${inquiry.location!.lng}'
+                  : 'N/A',
             ),
-            Row(children: [
-              Spacer(),
-              Transform.scale(
-                scale: 0.7,
-                child: ElevatedButton.icon(
-                    onPressed: () {
-                      LocationService.launchMap(
-                          inquiry.location.lat, inquiry.location.lng);
-                    },
-                    icon: Icon(Icons.location_on),
-                    label: Text("Open Map")),
-              )
-            ])
+            if (inquiry.location != null)
+              Row(
+                children: [
+                  const Spacer(),
+                  Transform.scale(
+                    scale: 0.7,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        LocationService.launchMap(
+                            inquiry.location!.lat, inquiry.location!.lng);
+                      },
+                      icon: const Icon(Icons.location_on),
+                      label: const Text("Open Map"),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
-        if (inquiry.roofType.isNotEmpty) ...[
+        if ((inquiry.roofType?.isNotEmpty ?? false)) ...[
           const SizedBox(height: 16),
           _buildSection(
             'Technical Details',
             [
-              _buildInfoRow('Roof Type', inquiry.roofType),
-              _buildInfoRow('Specification', inquiry.roofSpecification),
+              _buildInfoRow('Roof Type', inquiry.roofType ?? 'N/A'),
+              _buildInfoRow(
+                  'Specification', inquiry.roofSpecification ?? 'N/A'),
               _buildInfoRow(
                 'Proposed Amount',
-                '₹ ${inquiry.proposedAmount.toStringAsFixed(2)}',
+                inquiry.proposedAmount != null
+                    ? '₹ ${inquiry.proposedAmount!.toStringAsFixed(2)}'
+                    : 'N/A',
               ),
               _buildInfoRow(
                 'Proposed Capacity',
-                '${inquiry.proposedCapacity} kW',
+                inquiry.proposedCapacity != null
+                    ? '${inquiry.proposedCapacity} kW'
+                    : 'N/A',
               ),
             ],
           ),
@@ -163,27 +176,30 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
           const SizedBox(height: 16),
           _buildSection('Selected Products', [
             ProductTable(
-                products: inquiry.selectedProducts ?? <SelectedProductModel>[])
+              products: inquiry.selectedProducts ?? <SelectedProductModel>[],
+            ),
           ]),
         ],
         _buildSection("Quotation Details", [
           _buildInfoRow(
             'Quotation Status',
-            inquiry.quotationStatus,
+            inquiry.quotationStatus ?? 'N/A',
           ),
           _buildInfoRow(
             'Confirmation Status',
-            inquiry.confirmationStatus,
+            inquiry.confirmationStatus ?? 'N/A',
           ),
           _buildInfoRow(
             'Payment Terms',
-            inquiry.paymentTerms,
+            inquiry.paymentTerms ?? 'N/A',
           ),
           _buildInfoRow(
             'Total Cost',
-            "₹ ${inquiry.totalCost.toStringAsFixed(2)}",
+            inquiry.totalCost != null
+                ? "₹ ${inquiry.totalCost!.toStringAsFixed(2)}"
+                : 'N/A',
           ),
-        ])
+        ]),
       ],
     );
   }

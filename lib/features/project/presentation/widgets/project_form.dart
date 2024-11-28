@@ -68,8 +68,8 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
           TextFormField(
             controller: _collectedAmountController,
             onChanged: (value) {
-              double balance =
-                  widget.inquiry.proposedAmount - (double.tryParse(value) ?? 0);
+              double balance = (widget.inquiry.proposedAmount ?? 0) -
+                  (double.tryParse(value) ?? 0);
               setState(() {
                 _balanceAmountController.text = balance.toString();
               });

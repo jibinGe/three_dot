@@ -15,8 +15,8 @@ class InquiryRepository {
   InquiryRepository()
       : _dio = Dio(BaseOptions(
           baseUrl: ApiConstants.baseUrl,
-          connectTimeout: Duration(minutes: 8),
-          receiveTimeout: Duration(minutes: 5),
+          // connectTimeout: Duration(minutes: 8),
+          // receiveTimeout: Duration(minutes: 5),
           validateStatus: (status) => status! < 500,
         )),
         _storageService = StorageService() {
@@ -31,13 +31,17 @@ class InquiryRepository {
       ));
     }
   }
-  Future<List<InquiryModel>> getAllInquiries() async {
+  Future<List<InquiryModel>> getAllInquiries({String? stage}) async {
     try {
       final String? accessToken = await _storageService.getToken();
 
       final response = await _dio.get(
-        '/inquiry/?page=1&size=10',
-        // data: formData,
+        '/inquiry/',
+        queryParameters: {
+          'page': 1,
+          'size': 10,
+          if (stage != null) 'stage': stage,
+        },
         options: Options(
           contentType: 'application/x-www-form-urlencoded',
           headers: {
@@ -46,9 +50,20 @@ class InquiryRepository {
           },
         ),
       );
-      log(response.data.toString());
-      return (response.data["items"] as List)
-          .map((json) => InquiryModel.fromJson(json))
+
+      // Add null check and type checking
+      if (response.data == null) {
+        return [];
+      }
+
+      // Check if response.data["items"] exists and is a List
+      final items = response.data["items"];
+      if (items == null || items is! List) {
+        return [];
+      }
+
+      return items
+          .map<InquiryModel>((json) => InquiryModel.fromJson(json))
           .toList();
     } catch (e) {
       debugPrint('Failed to fetch Inquiries: $e');
@@ -58,12 +73,12 @@ class InquiryRepository {
 
   Future<InquiryModel> createInquiryStage1({
     required String name,
-    required String consumerNumber,
-    required String address,
+    // required String consumerNumber,
+    // required String address,
     required String mobileNumber,
-    required String email,
-    required LocationModel location,
-    int? referredById,
+    // required String email,
+    // required LocationModel location,
+    // int? referredById,
   }) async {
     debugPrint("repo called >>>>>>>>>>>>>>>>>>>>>>>");
     final String? accessToken = await _storageService.getToken();
@@ -73,12 +88,12 @@ class InquiryRepository {
         '/inquiry/stage1',
         data: {
           'name': name,
-          'consumer_number': consumerNumber,
-          'address': address,
+          // 'consumer_number': consumerNumber,
+          // 'address': address,
           'mobile_number': mobileNumber,
-          'email': email,
-          'location': location.toJson(),
-          if (referredById != null) 'referred_by_id': referredById,
+          // 'email': email,
+          // 'location': location.toJson(),
+          // if (referredById != null) 'referred_by_id': referredById,
         },
         options: Options(
           headers: {

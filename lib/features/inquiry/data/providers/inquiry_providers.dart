@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_state.dart';
-import 'package:three_dot/features/inquiry/data/models/location_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/repositories/inquiry_repository.dart';
 
@@ -18,14 +17,12 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
 
   InquiryNotifier(this._repository) : super(const InquiryState());
 
-  Future<void> getAllInquiries() async {
+  Future<void> getAllInquiries({String? stage}) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final inquiries = await _repository.getAllInquiries();
-      state = state.copyWith(
-        isLoading: false,
-        inquiries: inquiries,
-      );
+      final inquiries = await _repository.getAllInquiries(stage: stage);
+      print("Inquiry : $inquiries");
+      state = state.copyWith(isLoading: false, inquiries: inquiries);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -38,10 +35,7 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.getInquiry(id);
-      state = state.copyWith(
-        isLoading: false,
-        inquiry: inquiry,
-      );
+      state = state.copyWith(isLoading: false, inquiry: inquiry, error: null);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -52,23 +46,23 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
 
   Future<void> createInquiryStage1({
     required String name,
-    required String consumerNumber,
-    required String address,
+    // required String consumerNumber,
+    // required String address,
     required String mobileNumber,
-    required String email,
-    required LocationModel location,
-    int? referredById,
+    // required String email,
+    // required LocationModel location,
+    // int? referredById,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.createInquiryStage1(
         name: name,
-        consumerNumber: consumerNumber,
-        address: address,
+        // consumerNumber: consumerNumber,
+        // address: address,
         mobileNumber: mobileNumber,
-        email: email,
-        location: location,
-        referredById: referredById ?? 1,
+        // email: email,
+        // location: location,
+        // referredById: referredById ?? 1,
       );
       getAllInquiries();
       state = state.copyWith(

@@ -62,37 +62,37 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _consumerNumberController,
-              decoration: const InputDecoration(
-                labelText: 'Consumer Number',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.numbers),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter consumer number';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _addressController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Address',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.location_on),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter address';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
+            // TextFormField(
+            //   controller: _consumerNumberController,
+            //   decoration: const InputDecoration(
+            //     labelText: 'Consumer Number',
+            //     border: OutlineInputBorder(),
+            //     prefixIcon: Icon(Icons.numbers),
+            //   ),
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Please enter consumer number';
+            //     }
+            //     return null;
+            //   },
+            // ),
+            // const SizedBox(height: 16),
+            // TextFormField(
+            //   controller: _addressController,
+            //   maxLines: 3,
+            //   decoration: const InputDecoration(
+            //     labelText: 'Address',
+            //     border: OutlineInputBorder(),
+            //     prefixIcon: Icon(Icons.location_on),
+            //   ),
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Please enter address';
+            //     }
+            //     return null;
+            //   },
+            // ),
+            // const SizedBox(height: 16),
             TextFormField(
               controller: _mobileNumberController,
               decoration: const InputDecoration(
@@ -109,27 +109,27 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email),
-              ),
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter email';
-                }
-                final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                return !emailRegex.hasMatch(value)
-                    ? 'Enter a valid email'
-                    : null;
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildLocationPicker(),
-            const SizedBox(height: 24),
+            // TextFormField(
+            //   controller: _emailController,
+            //   decoration: const InputDecoration(
+            //     labelText: 'Email',
+            //     border: OutlineInputBorder(),
+            //     prefixIcon: Icon(Icons.email),
+            //   ),
+            //   keyboardType: TextInputType.emailAddress,
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Please enter email';
+            //     }
+            //     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+            //     return !emailRegex.hasMatch(value)
+            //         ? 'Enter a valid email'
+            //         : null;
+            //   },
+            // ),
+            // const SizedBox(height: 16),
+            // _buildLocationPicker(),
+            // const SizedBox(height: 24),
             SizedBox(
               height: 50,
               child: ElevatedButton(
@@ -218,24 +218,24 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      if (_latitude == null || _longitude == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please pick a location')),
-        );
-        return;
-      }
+      // if (_latitude == null || _longitude == null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text('Please pick a location')),
+      //   );
+      //   return;
+      // }
 
       try {
         await ref.read(inquiryNotifierProvider.notifier).createInquiryStage1(
               name: _nameController.text,
-              consumerNumber: _consumerNumberController.text,
-              address: _addressController.text,
+              // consumerNumber: _consumerNumberController.text,
+              // address: _addressController.text,
               mobileNumber: _mobileNumberController.text,
-              email: _emailController.text,
-              location: LocationModel(
-                lat: _latitude!,
-                lng: _longitude!,
-              ),
+              // email: _emailController.text,
+              // location: LocationModel(
+              //   lat: _latitude!,
+              //   lng: _longitude!,
+              // ),
             );
 
         if (mounted) {
