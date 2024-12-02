@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:three_dot/core/theme/app_colors.dart';
+import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
+import 'package:three_dot/features/inquiry/data/models/location_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/products/data/models/product_model.dart';
 import 'package:three_dot/features/products/data/providers/product_provider.dart';
+import 'package:three_dot/shared/services/location_service.dart';
 
 class InquiryStage2Screen extends ConsumerStatefulWidget {
   final int inquiryId;
@@ -25,6 +28,9 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
+  late final TextEditingController _consumerNumberController;
+  late final TextEditingController _addressController;
+  late final TextEditingController _emailController;
   late final TextEditingController _roofSpecificationController;
   late final TextEditingController _proposedAmountController;
   late final TextEditingController _proposedCapacityController;
@@ -38,6 +44,9 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   String _selectedConfirmationStatus = 'pending';
   final List<SelectedProductModel> _selectedProducts = [];
 
+  double? _latitude;
+  double? _longitude;
+  bool _loacationLoading = false;
   @override
   void initState() {
     super.initState();
@@ -46,6 +55,9 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   }
 
   void _initializeControllers() {
+    _consumerNumberController = TextEditingController();
+    _addressController = TextEditingController();
+    _emailController = TextEditingController();
     _roofSpecificationController = TextEditingController();
     _proposedAmountController = TextEditingController();
     _proposedCapacityController = TextEditingController();
@@ -56,9 +68,9 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
 
   void _loadInquiryData() async {
     try {
-      await ref
-          .read(inquiryNotifierProvider.notifier)
-          .getInquiry(widget.inquiryId);
+      // await ref
+      //     .read(inquiryNotifierProvider.notifier)
+      //     .getInquiry(widget.inquiryId);
 
       final inquiry = ref.read(inquiryNotifierProvider).inquiry;
       if (inquiry != null) {
@@ -69,21 +81,27 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
     }
   }
 
-  void _updateStateFromInquiry(dynamic inquiry) {
+  void _updateStateFromInquiry(InquiryModel inquiry) {
     setState(() {
-      _selectedRoofType = inquiry.roofType;
-      _selectedQuotationStatus = inquiry.quotationStatus;
-      _selectedConfirmationStatus = inquiry.confirmationStatus;
-      _roofSpecificationController.text = inquiry.roofSpecification;
-      _proposedAmountController.text = inquiry.proposedAmount.toString();
-      _proposedCapacityController.text = inquiry.proposedCapacity.toString();
+      _consumerNumberController.text = inquiry.consumerNumber ?? "";
+      _addressController.text = inquiry.address ?? "";
+      _emailController.text = inquiry.email ?? "";
+      _selectedRoofType = inquiry.roofType ?? 'normal';
+      _selectedQuotationStatus = inquiry.quotationStatus ?? 'pending';
+      _selectedConfirmationStatus = inquiry.confirmationStatus ?? 'pending';
+      _roofSpecificationController.text = inquiry.roofSpecification ?? "";
+      _proposedAmountController.text = inquiry.proposedAmount?.toString() ?? "";
+      _proposedCapacityController.text =
+          inquiry.proposedCapacity?.toString() ?? "";
       _quotationRejectionController.text =
           inquiry.quotationRejectionReason ?? "";
       _confirmationRejectionController.text =
           inquiry.confirmationRejectionReason ?? "";
-      _paymentTermsController.text = inquiry.paymentTerms;
+      _paymentTermsController.text = inquiry.paymentTerms ?? "";
       _selectedProducts
           .addAll(inquiry.selectedProducts ?? <SelectedProductModel>[]);
+      _latitude = inquiry.location?.lat;
+      _longitude = inquiry.location?.lng;
     });
   }
 
@@ -100,6 +118,9 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
   }
 
   void _disposeControllers() {
+    _consumerNumberController.dispose();
+    _addressController.dispose();
+    _emailController.dispose();
     _roofSpecificationController.dispose();
     _proposedAmountController.dispose();
     _proposedCapacityController.dispose();
@@ -110,34 +131,89 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
 
   @override
   Widget build(BuildContext context) {
-    final productsAsync = ref.watch(allProductsProvider);
+    // final productsAsync = ref.watch(allProductsProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Technical Details'),
       ),
-      body: productsAsync.when(
-        // data: (products) => ProductGrid(products: products),
+      // body: productsAsync.when(
+      //   // data: (products) => ProductGrid(products: products),
 
-        loading: () => Center(
-            child: LoadingAnimationWidget.threeArchedCircle(
-          color: AppColors.textPrimary,
-          size: 24,
-        )),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-        data: (products) => products.isEmpty
-            ? const Center(child: Text('No products found'))
-            : _buildForm(products),
-      ),
+      //   loading: () => Center(
+      //       child: LoadingAnimationWidget.threeArchedCircle(
+      //     color: AppColors.textPrimary,
+      //     size: 24,
+      //   )),
+      //   error: (error, stack) => Center(child: Text('Error: $error')),
+      //   data: (products) => products.isEmpty
+      //       ? const Center(child: Text('No products found'))
+      //       : _buildForm(products),
+      // ),
+      body: _buildForm(),
     );
   }
 
-  Form _buildForm(List<Product> products) {
+  Form _buildForm() {
+    // Form _buildForm(List<Product> products) {
     final inquiryState = ref.watch(inquiryNotifierProvider);
     return Form(
       key: _formKey,
       child: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          TextFormField(
+            controller: _consumerNumberController,
+            decoration: const InputDecoration(
+              labelText: 'Consumer NO',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.numbers),
+            ),
+            keyboardType: TextInputType.text,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter consumer Number';
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _addressController,
+            decoration: const InputDecoration(
+              labelText: 'Address',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.location_on_outlined),
+            ),
+            keyboardType: TextInputType.text,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter address';
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _emailController,
+            decoration: const InputDecoration(
+              labelText: 'Email',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.email),
+            ),
+            keyboardType: TextInputType.text,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter email';
+              }
+              final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+              return !emailRegex.hasMatch(value) ? 'Enter a valid email' : null;
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildLocationPicker(),
+          const SizedBox(height: 16),
           _buildRoofTypeSelection(),
           const SizedBox(height: 16),
           TextFormField(
@@ -211,11 +287,11 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
             },
           ),
           const SizedBox(height: 16),
-          _buildQuotationStatus(),
-          const SizedBox(height: 16),
-          _buildConfirmationStatus(),
-          const SizedBox(height: 16),
-          _buildProductsList(products),
+          // _buildQuotationStatus(),
+          // const SizedBox(height: 16),
+          // _buildConfirmationStatus(),
+          // const SizedBox(height: 16),
+          // _buildProductsList(products),
           const SizedBox(height: 24),
           SizedBox(
             height: 50,
@@ -227,6 +303,78 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
         ],
       ),
     );
+  }
+
+  Widget _buildLocationPicker() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Location',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _latitude != null
+                        ? 'Lat: $_latitude,\nLong: $_longitude'
+                        : 'No location selected',
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _pickLocation,
+                  icon:
+                      _loacationLoading ? null : const Icon(Icons.my_location),
+                  label: _loacationLoading
+                      ? SizedBox(
+                          width: 150,
+                          child: Center(
+                            child: LoadingAnimationWidget.waveDots(
+                                color: AppColors.surface, size: 20),
+                          ),
+                        )
+                      : Text(_latitude != null
+                          ? 'Update Location'
+                          : 'Pick Location'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _pickLocation() async {
+    // Implement location picking functionality
+    // You can use a map picker or get current location
+    try {
+      setState(() {
+        _loacationLoading = true;
+      });
+      final position = await LocationService.getLocation();
+      if (position != null) {
+        setState(() {
+          _latitude = position.latitude; // Replace with actual picked location
+          _longitude =
+              position.longitude; // Replace with actual picked location
+        });
+      }
+    } catch (e) {
+      debugPrint("Error getting Location");
+    } finally {
+      setState(() {
+        _loacationLoading = false;
+      });
+    }
   }
 
   Widget _buildRoofTypeSelection() {
@@ -550,16 +698,29 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      if (_latitude == null || _longitude == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please pick a location')),
+        );
+        return;
+      }
       try {
         await ref.read(inquiryNotifierProvider.notifier).updateInquiryStage2(
               inquiryId: widget.inquiryId,
+              consumerNo: _consumerNumberController.text,
+              address: _addressController.text,
+              email: _emailController.text,
+              location: LocationModel(
+                lat: _latitude!,
+                lng: _longitude!,
+              ),
               roofType: _selectedRoofType,
-              quotationStatus: _selectedQuotationStatus,
-              confirmationStatus: _selectedConfirmationStatus,
+              // quotationStatus: _selectedQuotationStatus,
+              // confirmationStatus: _selectedConfirmationStatus,
               roofSpecification: _roofSpecificationController.text,
-              quotationRejectionReason: _quotationRejectionController.text,
-              confirmationRejectionReason:
-                  _confirmationRejectionController.text,
+              // quotationRejectionReason: _quotationRejectionController.text,
+              // confirmationRejectionReason:
+              //     _confirmationRejectionController.text,
               proposedAmount: double.parse(_proposedAmountController.text),
               proposedCapacity: double.parse(_proposedCapacityController.text),
               paymentTerms: _paymentTermsController.text,

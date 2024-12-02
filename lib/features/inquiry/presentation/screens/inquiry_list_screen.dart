@@ -177,7 +177,8 @@ class _InquiryListScreenState extends ConsumerState<InquiryListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            Text('Consumer Number: ${inquiry.consumerNumber}'),
+            if (inquiry.consumerNumber != null && inquiry.consumerNumber != "")
+              Text('Consumer Number: ${inquiry.consumerNumber}'),
             Text('Mobile: ${inquiry.mobileNumber}'),
             if (inquiry.proposedAmount != null)
               Text(

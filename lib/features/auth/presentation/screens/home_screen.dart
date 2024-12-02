@@ -27,8 +27,8 @@ class HomeScreen extends ConsumerWidget {
         title: Text('Dashboard'),
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
+          // padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
               accountName: Text(user?.fullName ?? ''),
@@ -109,6 +109,7 @@ class HomeScreen extends ConsumerWidget {
                 // Navigate to onsite staff portal
               },
             ),
+            Spacer(),
             Divider(),
             ListTile(
               leading: Icon(Icons.settings),

@@ -41,44 +41,27 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inquiry Details'),
-        actions: [
-          if (inquiryState.inquiry != null)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InquiryStage2Screen(
-                      inquiryId: widget.inquiryId,
-                    ),
-                  ),
-                );
-              },
-            ),
-        ],
+        // actions: [
+        //   if (inquiryState.inquiry != null)
+        //     IconButton(
+        //       icon: const Icon(Icons.edit),
+        //       onPressed: () {
+        //         Navigator.push(
+        //           context,
+        //           MaterialPageRoute(
+        //             builder: (context) => InquiryStage2Screen(
+        //               inquiryId: widget.inquiryId,
+        //             ),
+        //           ),
+        //         );
+        //       },
+        //     ),
+        // ],
       ),
       body: Builder(
         builder: (context) {
           if (inquiryState.isLoading) {
             return const Center(child: CircularProgressIndicator());
-          }
-
-          if (inquiryState.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Error: ${inquiryState.error}'),
-                  ElevatedButton(
-                    onPressed: () => ref
-                        .read(inquiryNotifierProvider.notifier)
-                        .getInquiry(widget.inquiryId),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
           }
 
           final inquiry = inquiryState.inquiry;
@@ -89,7 +72,8 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
           return _buildInquiryDetails(inquiry);
         },
       ),
-      floatingActionButton: inquiryState.inquiry != null
+      floatingActionButton: (inquiryState.inquiry != null &&
+              inquiryState.inquiry?.inquiryStage == 4)
           ? ElevatedButton.icon(
               icon: const Icon(Icons.build),
               onPressed: () {
@@ -107,116 +91,188 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
   }
 
   Widget _buildInquiryDetails(InquiryModel inquiry) {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        _buildSection(
-          'Basic Information',
-          [
-            _buildInfoRow('Name', inquiry.name),
-            _buildInfoRow('Consumer Number', inquiry.consumerNumber ?? 'N/A'),
-            _buildInfoRow('Mobile', inquiry.mobileNumber ?? 'N/A'),
-            _buildInfoRow('Email', inquiry.email ?? 'N/A'),
-          ],
+    final List<Widget> sections = [];
+
+    // Add sections dynamically based on available data
+    final basicInfo = _buildSection(
+      'Basic Information',
+      [
+        _buildInfoRow('Name', inquiry.name),
+        if (inquiry.consumerNumber != null)
+          _buildInfoRow('Consumer Number', inquiry.consumerNumber!),
+        if (inquiry.mobileNumber != null)
+          _buildInfoRow('Mobile', inquiry.mobileNumber!),
+        if (inquiry.email != null) _buildInfoRow('Email', inquiry.email!),
+      ],
+    );
+
+    if (basicInfo != null) sections.add(basicInfo);
+
+    final locationDetails = _buildSection(
+      'Location Details',
+      [
+        if (inquiry.address != null) _buildInfoRow('Address', inquiry.address!),
+        if (inquiry.location != null) const SizedBox.shrink(),
+        // if (inquiry.location != null)
+        //   Row(
+        //     children: [
+        //       const Spacer(),
+        //       Transform.scale(
+        //         scale: 0.7,
+        //         child: ElevatedButton.icon(
+        //           onPressed: () {
+        //             LocationService.launchMap(
+        //                 inquiry.location!.lat, inquiry.location!.lng);
+        //           },
+        //           icon: const Icon(Icons.location_on),
+        //           label: const Text("Open Map"),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+      ],
+      titleButton: Transform.scale(
+        scale: 0.7,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            LocationService.launchMap(
+                inquiry.location!.lat, inquiry.location!.lng);
+          },
+          icon: const Icon(Icons.location_on),
+          label: const Text("Open Map"),
         ),
-        const SizedBox(height: 16),
-        _buildSection(
-          'Location Details',
-          [
-            _buildInfoRow('Address', inquiry.address ?? 'N/A'),
+      ),
+    );
+
+    if (locationDetails != null) sections.add(locationDetails);
+
+    if ((inquiry.roofType?.isNotEmpty ?? false)) {
+      final technicalDetails = _buildSection(
+        'Technical Details',
+        [
+          if (inquiry.roofType != null)
+            _buildInfoRow('Roof Type', inquiry.roofType!),
+          if (inquiry.roofSpecification != null)
+            _buildInfoRow('Specification', inquiry.roofSpecification!),
+          if (inquiry.proposedAmount != null)
             _buildInfoRow(
-              'Coordinates',
-              inquiry.location != null
-                  ? 'Lat: ${inquiry.location!.lat}, Long: ${inquiry.location!.lng}'
-                  : 'N/A',
+              'Proposed Amount',
+              '₹ ${inquiry.proposedAmount!.toStringAsFixed(2)}',
             ),
-            if (inquiry.location != null)
-              Row(
-                children: [
-                  const Spacer(),
-                  Transform.scale(
-                    scale: 0.7,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        LocationService.launchMap(
-                            inquiry.location!.lat, inquiry.location!.lng);
-                      },
-                      icon: const Icon(Icons.location_on),
-                      label: const Text("Open Map"),
-                    ),
-                  ),
-                ],
-              ),
-          ],
+          if (inquiry.proposedCapacity != null)
+            _buildInfoRow(
+              'Proposed Capacity',
+              '${inquiry.proposedCapacity} kW',
+            ),
+        ],
+      );
+      sections.add(technicalDetails);
+    }
+
+    if (inquiry.selectedProducts?.isNotEmpty ?? false) {
+      final productsSection = _buildSection(
+        'Selected Products',
+        [
+          ProductTable(
+            products: inquiry.selectedProducts ?? <SelectedProductModel>[],
+          ),
+        ],
+      );
+      sections.add(productsSection);
+    }
+
+    final quotationDetails = _buildSection("Quotation Details", [
+      if (inquiry.quotationStatus != null)
+        _buildInfoRow('Quotation Status', inquiry.quotationStatus!),
+      if (inquiry.confirmationStatus != null)
+        _buildInfoRow('Confirmation Status', inquiry.confirmationStatus!),
+      if (inquiry.paymentTerms != null)
+        _buildInfoRow('Payment Terms', inquiry.paymentTerms!),
+      if (inquiry.totalCost != null)
+        _buildInfoRow(
+          'Total Cost',
+          "₹ ${inquiry.totalCost!.toStringAsFixed(2)}",
         ),
-        if ((inquiry.roofType?.isNotEmpty ?? false)) ...[
-          const SizedBox(height: 16),
-          _buildSection(
-            'Technical Details',
-            [
-              _buildInfoRow('Roof Type', inquiry.roofType ?? 'N/A'),
-              _buildInfoRow(
-                  'Specification', inquiry.roofSpecification ?? 'N/A'),
-              _buildInfoRow(
-                'Proposed Amount',
-                inquiry.proposedAmount != null
-                    ? '₹ ${inquiry.proposedAmount!.toStringAsFixed(2)}'
-                    : 'N/A',
-              ),
-              _buildInfoRow(
-                'Proposed Capacity',
-                inquiry.proposedCapacity != null
-                    ? '${inquiry.proposedCapacity} kW'
-                    : 'N/A',
+    ]);
+
+    if (quotationDetails != null && inquiry.inquiryStage == 4) {
+      sections.add(quotationDetails);
+    }
+    if (inquiry.inquiryStage == 1) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => InquiryStage2Screen(
+                        inquiryId: widget.inquiryId,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add_chart_outlined),
+                label: const Text("Go to Stage 2"),
               ),
             ],
           ),
-        ],
-        if (inquiry.selectedProducts?.isNotEmpty ?? false) ...[
-          const SizedBox(height: 16),
-          _buildSection('Selected Products', [
-            ProductTable(
-              products: inquiry.selectedProducts ?? <SelectedProductModel>[],
-            ),
-          ]),
-        ],
-        _buildSection("Quotation Details", [
-          _buildInfoRow(
-            'Quotation Status',
-            inquiry.quotationStatus ?? 'N/A',
+        ),
+      );
+    }
+    if (inquiry.inquiryStage == 2) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await ref
+                      .read(inquiryNotifierProvider.notifier)
+                      .updateInquiryStage3(inquiryId: inquiry.id);
+                },
+                icon: const Icon(Icons.add_chart_outlined),
+                label: const Text("Go to Stage 3"),
+              ),
+            ],
           ),
-          _buildInfoRow(
-            'Confirmation Status',
-            inquiry.confirmationStatus ?? 'N/A',
-          ),
-          _buildInfoRow(
-            'Payment Terms',
-            inquiry.paymentTerms ?? 'N/A',
-          ),
-          _buildInfoRow(
-            'Total Cost',
-            inquiry.totalCost != null
-                ? "₹ ${inquiry.totalCost!.toStringAsFixed(2)}"
-                : 'N/A',
-          ),
-        ]),
-      ],
+        ),
+      );
+    }
+    return ListView(
+      padding: const EdgeInsets.all(16.0),
+      children: sections,
     );
   }
 
-  Widget _buildSection(String title, List<Widget> children) {
+  Widget _buildSection(String title, List<Widget> children,
+      {Widget? titleButton}) {
+    if (children.isEmpty) return const SizedBox.shrink();
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                titleButton ?? const SizedBox.shrink()
+              ],
             ),
             const SizedBox(height: 16),
             ...children,

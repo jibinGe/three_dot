@@ -76,6 +76,7 @@ class InquiryRepository {
     // required String consumerNumber,
     // required String address,
     required String mobileNumber,
+    LocationModel? location,
     // required String email,
     // required LocationModel location,
     // int? referredById,
@@ -92,7 +93,7 @@ class InquiryRepository {
           // 'address': address,
           'mobile_number': mobileNumber,
           // 'email': email,
-          // 'location': location.toJson(),
+          if (location != null) 'location': location.toJson(),
           // if (referredById != null) 'referred_by_id': referredById,
         },
         options: Options(
@@ -114,15 +115,19 @@ class InquiryRepository {
   Future<InquiryModel> updateInquiryStage2({
     required int inquiryId,
     required String roofType,
-    required String quotationStatus,
-    required String confirmationStatus,
+    // required String quotationStatus,
+    // required String confirmationStatus,
     required String roofSpecification,
-    required String confirmationRejectionReason,
-    required String quotationRejectionReason,
+    // required String confirmationRejectionReason,
+    // required String quotationRejectionReason,
     required double proposedAmount,
     required double proposedCapacity,
     required String paymentTerms,
     required List<SelectedProductModel> selectedProducts,
+    required String address,
+    required String consumerNo,
+    required String email,
+    required LocationModel location,
   }) async {
     final String? accessToken = await _storageService.getToken();
 
@@ -136,12 +141,43 @@ class InquiryRepository {
           'proposed_capacity': proposedCapacity,
           'payment_terms': paymentTerms,
           'selected_products': selectedProducts.map((p) => p.toJson()).toList(),
-          'quotation_status': quotationStatus,
-          'confirmation_status': confirmationStatus,
-          if (quotationRejectionReason != "")
-            'quotation_rejection_reason': quotationRejectionReason,
-          if (confirmationRejectionReason != "")
-            'confirmation_rejection_reason': confirmationRejectionReason,
+          'consumer_number': consumerNo,
+          'address': address,
+          'email': email,
+          'inquiry_stage': 2,
+          'location': location.toJson(),
+          // if (referredById != null) 'referred_by_id': referredById,
+          // 'quotation_status': quotationStatus,
+          // 'confirmation_status': confirmationStatus,
+          // if (quotationRejectionReason != "")
+          //   'quotation_rejection_reason': quotationRejectionReason,
+          // if (confirmationRejectionReason != "")
+          //   'confirmation_rejection_reason': confirmationRejectionReason,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+
+      return InquiryModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to update inquiry: $e');
+    }
+  }
+
+  Future<InquiryModel> updateInquiryStage3({
+    required int inquiryId,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.put(
+        '/inquiry/$inquiryId',
+        data: {
+          'inquiry_stage': 3,
         },
         options: Options(
           headers: {

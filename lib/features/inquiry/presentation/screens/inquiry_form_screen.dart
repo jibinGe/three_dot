@@ -128,8 +128,8 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
             //   },
             // ),
             // const SizedBox(height: 16),
-            // _buildLocationPicker(),
-            // const SizedBox(height: 24),
+            _buildLocationPicker(),
+            const SizedBox(height: 24),
             SizedBox(
               height: 50,
               child: ElevatedButton(
@@ -232,10 +232,12 @@ class _InquiryFormScreenState extends ConsumerState<InquiryFormScreen> {
               // address: _addressController.text,
               mobileNumber: _mobileNumberController.text,
               // email: _emailController.text,
-              // location: LocationModel(
-              //   lat: _latitude!,
-              //   lng: _longitude!,
-              // ),
+              location: (_latitude == null || _longitude == null)
+                  ? null
+                  : LocationModel(
+                      lat: _latitude!,
+                      lng: _longitude!,
+                    ),
             );
 
         if (mounted) {
