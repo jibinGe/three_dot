@@ -71,7 +71,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         unitPriceController.text = widget.product?.unitPrice?.toString() ?? "0";
         unitTypeController.text = widget.product?.unitType ?? "";
         stockController.text = widget.product?.stock?.toString() ?? "";
-        categoryController.text = widget.product?.category ?? "";
+        categoryController.text = widget.product?.category.name ?? "";
       });
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -230,13 +230,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               onPressed: formState.isLoading
                   ? null
                   : () async {
-                      final success = await ref
-                          .read(productFormProvider.notifier)
-                          .submitForm(context, ref);
+                      // final success = await ref
+                      //     .read(productFormProvider.notifier)
+                      //     .submitForm(context, ref);
 
-                      if (success && context.mounted) {
-                        Navigator.of(context).pop();
-                      }
+                      // if (success && context.mounted) {
+                      //   Navigator.of(context).pop();
+                      // }
                     },
               child: formState.isLoading
                   ? const CircularProgressIndicator()

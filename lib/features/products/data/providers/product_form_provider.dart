@@ -48,75 +48,75 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     );
   }
 
-  Future<bool> submitForm(BuildContext context, WidgetRef ref) async {
-    if (!state.formKey.currentState!.validate()) {
-      return false;
-    }
+  // Future<bool> submitForm(BuildContext context, WidgetRef ref) async {
+  //   if (!state.formKey.currentState!.validate()) {
+  //     return false;
+  //   }
 
-    state.formKey.currentState!.save();
+  //   state.formKey.currentState!.save();
 
-    // Collect form data
-    final nameController = ref.read(nameControllerProvider);
-    final manufacturerController = ref.read(manufacturerControllerProvider);
-    final modelController = ref.read(modelControllerProvider);
-    final descriptionController = ref.read(descriptionControllerProvider);
-    final unitPriceController = ref.read(unitPriceControllerProvider);
-    final unitTypeController = ref.read(unitTypeControllerProvider);
-    final stockController = ref.read(stockControllerProvider);
-    final categoryController = ref.read(categoryControllerProvider);
+  //   // Collect form data
+  //   final nameController = ref.read(nameControllerProvider);
+  //   final manufacturerController = ref.read(manufacturerControllerProvider);
+  //   final modelController = ref.read(modelControllerProvider);
+  //   final descriptionController = ref.read(descriptionControllerProvider);
+  //   final unitPriceController = ref.read(unitPriceControllerProvider);
+  //   final unitTypeController = ref.read(unitTypeControllerProvider);
+  //   final stockController = ref.read(stockControllerProvider);
+  //   final categoryController = ref.read(categoryControllerProvider);
 
-    try {
-      state = ProductFormState(
-        initialProduct: state.initialProduct,
-        specifications: state.specifications,
-        formKey: state.formKey,
-        isLoading: true,
-      );
+  //   try {
+  //     state = ProductFormState(
+  //       initialProduct: state.initialProduct,
+  //       specifications: state.specifications,
+  //       formKey: state.formKey,
+  //       isLoading: true,
+  //     );
 
-      final product = Product(
-        id: state.initialProduct?.id ?? DateTime.now().millisecondsSinceEpoch,
-        name: nameController.text,
-        manufacturer: manufacturerController.text,
-        model: modelController.text,
-        description: descriptionController.text,
-        unitPrice: double.parse(unitPriceController.text),
-        unitType: unitTypeController.text,
-        stock: int.parse(stockController.text),
-        category: categoryController.text,
-        specifications: state.specifications,
-      );
+  //     final product = Product(
+  //       id: state.initialProduct?.id ?? DateTime.now().millisecondsSinceEpoch,
+  //       name: nameController.text,
+  //       manufacturer: manufacturerController.text,
+  //       model: modelController.text,
+  //       description: descriptionController.text,
+  //       unitPrice: double.parse(unitPriceController.text),
+  //       unitType: unitTypeController.text,
+  //       stock: int.parse(stockController.text),
+  //       category: categoryController.text,
+  //       specifications: state.specifications,
+  //     );
 
-      final repository = ref.read(productRepositoryProvider);
+  //     final repository = ref.read(productRepositoryProvider);
 
-      // Determine if we're adding or updating
-      if (state.initialProduct == null) {
-        await repository.addProduct(product);
-      } else {
-        // Update existing product
-        await repository.updateProduct(product);
-      }
+  //     // Determine if we're adding or updating
+  //     if (state.initialProduct == null) {
+  //       await repository.addProduct(product);
+  //     } else {
+  //       // Update existing product
+  //       await repository.updateProduct(product);
+  //     }
 
-      // Refresh the products list
-      ref.refresh(productsProvider);
+  //     // Refresh the products list
+  //     ref.refresh(productsProvider);
 
-      return true;
-    } catch (e) {
-      state = ProductFormState(
-        initialProduct: state.initialProduct,
-        specifications: state.specifications,
-        formKey: state.formKey,
-        errorMessage: e.toString(),
-      );
-      return false;
-    } finally {
-      state = ProductFormState(
-        initialProduct: state.initialProduct,
-        specifications: state.specifications,
-        formKey: state.formKey,
-        isLoading: false,
-      );
-    }
-  }
+  //     return true;
+  //   } catch (e) {
+  //     state = ProductFormState(
+  //       initialProduct: state.initialProduct,
+  //       specifications: state.specifications,
+  //       formKey: state.formKey,
+  //       errorMessage: e.toString(),
+  //     );
+  //     return false;
+  //   } finally {
+  //     state = ProductFormState(
+  //       initialProduct: state.initialProduct,
+  //       specifications: state.specifications,
+  //       formKey: state.formKey,
+  //       isLoading: false,
+  //     );
+  //   }
+  // }
 }
 
 // Text controllers providers

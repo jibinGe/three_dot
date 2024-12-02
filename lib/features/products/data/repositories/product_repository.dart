@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:three_dot/core/constants/api_constants.dart';
+import 'package:three_dot/features/products/data/models/product_category_model.dart';
 import 'package:three_dot/features/products/data/models/product_model.dart';
 import 'package:three_dot/shared/services/storage_service.dart';
 
@@ -28,14 +29,14 @@ class ProductRepository {
     }
   }
 
-  Future<List<Product>> getProductsByCategory(String category) async {
+  Future<List<Product>> getProductsByCategory(int category) async {
     try {
       final formData =
           FormData.fromMap({'category': category, 'skip': 0, 'limit': 100});
       final String? accessToken = await _storageService.getToken();
 
       final response = await _dio.get(
-        '/products/?category=$category&skip=0&limit=100',
+        '/products/products/$category',
         // data: formData,
         options: Options(
           contentType: 'application/x-www-form-urlencoded',
@@ -50,6 +51,7 @@ class ProductRepository {
           .map((json) => Product.fromJson(json))
           .toList();
     } catch (e) {
+      debugPrint('Failed to fetch products: $e');
       throw Exception('Failed to fetch products: $e');
     }
   }
@@ -59,7 +61,7 @@ class ProductRepository {
       final String? accessToken = await _storageService.getToken();
 
       final response = await _dio.get(
-        '/products/',
+        '/products/products',
         // data: formData,
         options: Options(
           contentType: 'application/x-www-form-urlencoded',
@@ -135,6 +137,30 @@ class ProductRepository {
       return Product.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to add product: $e');
+    }
+  }
+
+  Future<List<ProductCategory>> getallProductCategories() async {
+    try {
+      final String? accessToken = await _storageService.getToken();
+
+      final response = await _dio.get(
+        '/products/categories/',
+        // data: formData,
+        options: Options(
+          contentType: 'application/x-www-form-urlencoded',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+
+      return (response.data as List)
+          .map((json) => ProductCategory.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch categories: $e');
     }
   }
 }
