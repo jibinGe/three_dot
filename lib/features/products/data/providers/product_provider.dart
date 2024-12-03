@@ -18,8 +18,3 @@ final allProductsProvider = FutureProvider.autoDispose<List<Product>>((ref) {
   final repository = ref.watch(productRepositoryProvider);
   return repository.getallProducts();
 });
-final productsCategoryProvider =
-    FutureProvider.autoDispose<List<ProductCategory>>((ref) {
-  final repository = ref.watch(productRepositoryProvider);
-  return repository.getallProductCategories();
-});

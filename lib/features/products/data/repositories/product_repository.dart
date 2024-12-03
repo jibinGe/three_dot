@@ -84,7 +84,7 @@ class ProductRepository {
     try {
       final String? accessToken = await _storageService.getToken();
       await _dio.delete(
-        '/products/$productId',
+        '/products/products/$productId',
         options: Options(
           contentType: 'application/x-www-form-urlencoded',
           headers: {
@@ -102,7 +102,7 @@ class ProductRepository {
     final String? accessToken = await _storageService.getToken();
     try {
       final response = await _dio.put(
-        '/products/${product.id}',
+        '/products/products/${product.id}',
         data: product.toJson(),
         options: Options(
           contentType: 'application/json',
@@ -123,7 +123,7 @@ class ProductRepository {
     final String? accessToken = await _storageService.getToken();
     try {
       final response = await _dio.post(
-        '/products/',
+        '/products/products/',
         data: product.toJson(),
         options: Options(
           contentType: 'application/json',
@@ -161,6 +161,72 @@ class ProductRepository {
           .toList();
     } catch (e) {
       throw Exception('Failed to fetch categories: $e');
+    }
+  }
+
+  Future<ProductCategory?> addCategory(ProductCategory category) async {
+    final String? accessToken = await _storageService.getToken();
+    try {
+      final response = await _dio.post(
+        '/products/categories/',
+        data: category.toJson(),
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return ProductCategory.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to add product: $e');
+    }
+  }
+
+  Future<ProductCategory?> updateCategory(ProductCategory category) async {
+    final String? accessToken = await _storageService.getToken();
+    try {
+      final response = await _dio.put(
+        '/products/categories/${category.id}',
+        data: category.toJson(),
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return ProductCategory.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to add product: $e');
+    }
+  }
+
+  Future<void> deleteCategory(ProductCategory category) async {
+    final String? accessToken = await _storageService.getToken();
+    try {
+      final response = await _dio.delete(
+        '/products/categories/${category.id}',
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+
+      return;
+    } catch (e) {
+      throw Exception('Failed to add product: $e');
     }
   }
 }

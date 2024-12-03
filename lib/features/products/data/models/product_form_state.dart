@@ -15,6 +15,6 @@ class ProductFormState {
     GlobalKey<FormState>? formKey,
     this.isLoading = false,
     this.errorMessage,
-  })  : specifications = specifications ?? {},
+  })  : specifications = specifications ?? initialProduct?.specifications ?? {},
         formKey = formKey ?? GlobalKey<FormState>();
 }

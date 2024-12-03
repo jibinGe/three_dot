@@ -1,23 +1,23 @@
 import 'package:three_dot/features/products/data/models/product_category_model.dart';
 
 class Product {
-  final ProductCategory category;
+  final ProductCategory? category;
   final String name;
   final String manufacturer;
   final String model;
-  final Map<String, String> specifications;
+  final Map<String, dynamic> specifications;
   final double unitPrice;
   final String unitType;
   final int? stock;
   final double averageCost;
   final String? description;
-  final int id;
+  final int? id;
   final int categoryId;
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
 
   Product({
-    required this.category,
+    this.category,
     required this.name,
     required this.manufacturer,
     required this.model,
@@ -27,9 +27,9 @@ class Product {
     this.stock,
     required this.averageCost,
     this.description,
-    required this.id,
+    this.id,
     required this.categoryId,
-    required this.createdAt,
+    this.createdAt,
     this.updatedAt,
   });
 
@@ -39,7 +39,7 @@ class Product {
       name: json['name'],
       manufacturer: json['manufacturer'],
       model: json['model'],
-      specifications: Map<String, String>.from(json['specifications']),
+      specifications: Map<String, dynamic>.from(json['specifications']),
       unitPrice: json['unit_price'].toDouble(),
       unitType: json['unit_type'],
       stock: json['stock'],
@@ -56,7 +56,7 @@ class Product {
 
   Map<String, dynamic> toJson() {
     return {
-      'category': category.toJson(),
+      // 'category': category.toJson(),
       'name': name,
       'manufacturer': manufacturer,
       'model': model,
@@ -66,10 +66,10 @@ class Product {
       'stock': stock,
       'average_cost': averageCost,
       'description': description,
-      'id': id,
+      // 'id': id,
       'category_id': categoryId,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
+      // 'created_at': createdAt?.toIso8601String(),
+      // 'updated_at': updatedAt?.toIso8601String(),
     };
   }
 }

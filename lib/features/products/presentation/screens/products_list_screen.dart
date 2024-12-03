@@ -16,8 +16,17 @@ class ProductsListScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-          // title: Text(selectedCategory.replaceAll('_', ' ').toUpperCase()),
-          ),
+        actions: [
+          Transform.scale(
+            scale: 0.9,
+            child: ElevatedButton(
+              onPressed: () => _showEditProductForm(context, ref),
+              child: const Icon(Icons.add),
+            ),
+          )
+        ],
+        // title: Text(selectedCategory.replaceAll('_', ' ').toUpperCase()),
+      ),
       body: productsAsync.when(
         // data: (products) => ProductGrid(products: products),
         data: (categories) => categories.isEmpty
@@ -36,11 +45,11 @@ class ProductsListScreen extends ConsumerWidget {
       //     ref.read(selectedCategoryProvider.notifier).state = category;
       //   },
       // ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showEditProductForm(context, ref),
-        child: Icon(Icons.add),
-        isExtended: true,
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => _showEditProductForm(context, ref),
+      //   child: Icon(Icons.add),
+      //   isExtended: true,
+      // ),
     );
   }
 

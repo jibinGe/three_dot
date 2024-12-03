@@ -52,7 +52,7 @@ class ProductListItem extends ConsumerWidget {
                     'Price', '${product.unitPrice} per ${product.unitType}'),
                 _buildDetailRow(
                     'Stock', '${product.stock} ${product.unitType}'),
-                _buildDetailRow('Category', product.category.name),
+                _buildDetailRow('Category', product.category?.name ?? ""),
                 const SizedBox(height: 8),
                 const Text(
                   'Specifications:',

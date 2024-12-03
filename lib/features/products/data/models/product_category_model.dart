@@ -1,17 +1,17 @@
 class ProductCategory {
-  final int id;
+  final int? id;
   final String name;
   final String code;
   final String description;
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
 
   ProductCategory({
-    required this.id,
+    this.id,
     required this.name,
     required this.code,
     required this.description,
-    required this.createdAt,
+    this.createdAt,
     this.updatedAt,
   });
 
@@ -30,12 +30,9 @@ class ProductCategory {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       'code': code,
       'description': description,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
     };
   }
 }

@@ -71,7 +71,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         unitPriceController.text = widget.product?.unitPrice?.toString() ?? "0";
         unitTypeController.text = widget.product?.unitType ?? "";
         stockController.text = widget.product?.stock?.toString() ?? "";
-        categoryController.text = widget.product?.category.name ?? "";
+        categoryController.text = widget.product?.category?.name ?? "";
       });
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -136,26 +136,26 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   value == null || value.isEmpty ? 'Model is required' : null,
             ),
             // Dropdown for Category
-            DropdownButtonFormField<String>(
-              value: ref.read(categoryControllerProvider).text.isEmpty
-                  ? null
-                  : ref.read(categoryControllerProvider).text,
-              decoration: const InputDecoration(
-                labelText: 'Category',
-                border: OutlineInputBorder(),
-              ),
-              items: _categories.map((category) {
-                return DropdownMenuItem(
-                  value: category,
-                  child: Text(category.replaceAll('_', ' ').toUpperCase()),
-                );
-              }).toList(),
-              validator: (value) =>
-                  value == null ? 'Please select a category' : null,
-              onChanged: (value) {
-                ref.read(categoryControllerProvider).text = value!;
-              },
-            ),
+            // DropdownButtonFormField<String>(
+            //   value: ref.read(categoryControllerProvider).text.isEmpty
+            //       ? null
+            //       : ref.read(categoryControllerProvider).text,
+            //   decoration: const InputDecoration(
+            //     labelText: 'Category',
+            //     border: OutlineInputBorder(),
+            //   ),
+            //   items: _categories.map((category) {
+            //     return DropdownMenuItem(
+            //       value: category,
+            //       child: Text(category.replaceAll('_', ' ').toUpperCase()),
+            //     );
+            //   }).toList(),
+            //   validator: (value) =>
+            //       value == null ? 'Please select a category' : null,
+            //   onChanged: (value) {
+            //     ref.read(categoryControllerProvider).text = value!;
+            //   },
+            // ),
             _buildTextFormField(
               controller: ref.read(descriptionControllerProvider),
               label: 'Description',
@@ -189,21 +189,22 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   ? 'Unit type is required'
                   : null,
             ),
-            _buildTextFormField(
-              controller: ref.read(stockControllerProvider),
-              label: 'Stock Quantity',
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Stock quantity is required';
-                }
-                if (int.tryParse(value) == null) {
-                  return 'Invalid stock quantity';
-                }
-                return null;
-              },
-            ),
+            if (widget.product == null)
+              _buildTextFormField(
+                controller: ref.read(stockControllerProvider),
+                label: 'Stock Quantity',
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Stock quantity is required';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Invalid stock quantity';
+                  }
+                  return null;
+                },
+              ),
 
             // Specifications Section
             const SizedBox(height: 16),
@@ -230,13 +231,14 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               onPressed: formState.isLoading
                   ? null
                   : () async {
-                      // final success = await ref
-                      //     .read(productFormProvider.notifier)
-                      //     .submitForm(context, ref);
+                      print("taped");
+                      final success = await ref
+                          .read(productFormProvider.notifier)
+                          .submitForm(context, ref);
 
-                      // if (success && context.mounted) {
-                      //   Navigator.of(context).pop();
-                      // }
+                      if (success && context.mounted) {
+                        Navigator.of(context).pop();
+                      }
                     },
               child: formState.isLoading
                   ? const CircularProgressIndicator()
