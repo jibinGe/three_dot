@@ -831,7 +831,7 @@ class _ProductSelectionDialogState extends State<ProductSelectionDialog> {
                     if (_formKey.currentState?.validate() ?? false) {
                       widget.onAdd(_selectedProduct != null
                           ? SelectedProductModel(
-                              productId: _selectedProduct!.id,
+                              productId: _selectedProduct!.id ?? 0,
                               quantity: double.parse(quantityController.text),
                               unitPrice: _selectedProduct!.unitPrice,
                               name: _selectedProduct!.name)

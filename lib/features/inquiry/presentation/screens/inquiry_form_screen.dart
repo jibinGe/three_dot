@@ -8,7 +8,9 @@ import 'package:three_dot/features/inquiry/presentation/screens/inquiry_detail_s
 import 'package:three_dot/shared/services/location_service.dart';
 
 class InquiryFormScreen extends ConsumerStatefulWidget {
-  const InquiryFormScreen({Key? key}) : super(key: key);
+  const InquiryFormScreen({
+    super.key,
+  });
 
   @override
   ConsumerState<InquiryFormScreen> createState() => _InquiryFormScreenState();
