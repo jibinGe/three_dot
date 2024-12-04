@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/products/data/models/product_model.dart';
 import 'package:three_dot/features/products/data/providers/product_provider.dart';
 import 'package:three_dot/features/products/presentation/screens/product_form_screen.dart';
+import 'package:three_dot/features/products/presentation/screens/product_movement_screen.dart';
 
 class ProductList extends StatelessWidget {
   final List<Product> products;
@@ -71,8 +72,14 @@ class ProductListItem extends ConsumerWidget {
                 Text(product.description ?? ""),
                 const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  // mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    TextButton(
+                      onPressed: () =>
+                          _showStockMovement(context, ref, product),
+                      child: const Text('Stock Movement'),
+                    ),
+                    Spacer(),
                     TextButton(
                       onPressed: () => showEditProductForm(context, ref),
                       child: const Text('EDIT'),
@@ -162,6 +169,16 @@ class ProductListItem extends ConsumerWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ProductFormScreen(product: product),
+      ),
+    );
+  }
+
+  _showStockMovement(BuildContext context, WidgetRef ref, Product product) {
+    ref.read(selectedProductProvider.notifier).state = product.id!;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const StockMovementScreen(),
       ),
     );
   }

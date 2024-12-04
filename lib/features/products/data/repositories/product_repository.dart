@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:three_dot/core/constants/api_constants.dart';
 import 'package:three_dot/features/products/data/models/product_category_model.dart';
 import 'package:three_dot/features/products/data/models/product_model.dart';
+import 'package:three_dot/features/products/data/models/stock_movement_model.dart';
 import 'package:three_dot/shared/services/storage_service.dart';
 
 class ProductRepository {
@@ -227,6 +230,35 @@ class ProductRepository {
       return;
     } catch (e) {
       throw Exception('Failed to add product: $e');
+    }
+  }
+
+  Future<List<StockMovementModel>> getProductMovements(int productId) async {
+    try {
+      final String? accessToken = await _storageService.getToken();
+
+      final response = await _dio.get(
+        '/products/stock-movements/',
+        // data: formData,
+        queryParameters: {
+          'skip': 0,
+          'limit': 100,
+          'product_id': productId,
+        },
+        options: Options(
+          contentType: 'application/x-www-form-urlencoded',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+      log(response.data.toString());
+      return (response.data as List)
+          .map((json) => StockMovementModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetchProduct Movements: $e');
     }
   }
 }
