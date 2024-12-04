@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
@@ -259,6 +260,129 @@ class ProductRepository {
           .toList();
     } catch (e) {
       throw Exception('Failed to fetchProduct Movements: $e');
+    }
+  }
+
+  Future<StockMovementModel> getAProductMovements(int movementId) async {
+    try {
+      final String? accessToken = await _storageService.getToken();
+
+      final response = await _dio.get(
+        '/products/stock-movements/$movementId',
+        // data: formData,
+
+        options: Options(
+          contentType: 'application/x-www-form-urlencoded',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+      log(response.data.toString());
+      return StockMovementModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to fetchProduct Movement: $e');
+    }
+  }
+
+  Future<StockMovementModel?> createProductMovement({
+    required int productId,
+    required String movementType,
+    required double quantity,
+    required double unitPrice,
+    required String reference,
+    required String remarks,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+    print("repo");
+    try {
+      final response = await _dio.post(
+        '/products/stock-movements/',
+        data: {
+          "product_id": productId,
+          "movement_type": movementType,
+          "quantity": quantity,
+          "unit_price": unitPrice,
+          "reference_number": reference,
+          "remarks": remarks
+        },
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return StockMovementModel.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      print('Failed to add product: $e');
+      throw Exception('Failed to add product: $e');
+    }
+  }
+  // createProductMovement(StockMovementModel newMovement) {}
+
+  Future<StockMovementModel?> updateProductMovement({
+    required int movementId,
+    required double quantity,
+    required double unitPrice,
+    required String reference,
+    required String remarks,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.put(
+        '/products/stock-movements/$movementId',
+        data: {
+          "quantity": quantity,
+          "unit_price": unitPrice,
+          "reference_number": reference,
+          "remarks": remarks
+        },
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return StockMovementModel.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      print('Failed to dit product: $e');
+      throw Exception('Failed to edit product: $e');
+    }
+  }
+
+  deleteProductMovement(int movementId) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.delete(
+        '/products/stock-movements/$movementId',
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}'
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return StockMovementModel.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      print('Failed to delete movement: $e');
+      throw Exception('Failed to delete movement: $e');
     }
   }
 }

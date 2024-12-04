@@ -6,28 +6,56 @@ import 'package:three_dot/core/theme/app_colors.dart';
 import 'package:three_dot/features/products/data/models/product_model.dart';
 import 'package:three_dot/features/products/data/models/stock_movement_model.dart';
 import 'package:three_dot/features/products/data/providers/product_provider.dart';
+import 'package:three_dot/features/products/data/providers/stock_movement_provider.dart';
 import 'package:three_dot/features/products/presentation/screens/stock_movement_detailse_screen.dart';
+import 'package:three_dot/features/products/presentation/widgets/stock_movement_form.dart';
 
-class StockMovementScreen extends ConsumerWidget {
-  const StockMovementScreen({super.key});
+class StockMovementScreen extends ConsumerStatefulWidget {
+  final Product product;
+  const StockMovementScreen(this.product, {super.key});
+  @override
+  ConsumerState<StockMovementScreen> createState() =>
+      _StockMovementScreenState();
+}
+
+class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref
+          .read(stockMovementNotifierProvider.notifier)
+          .getAllStockMovements(widget.product.id ?? 0);
+    });
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final stockMovementsAsyncValue = ref.watch(productMovementProvider);
+  Widget build(BuildContext context) {
+    final stockMovementState = ref.watch(stockMovementNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Stock Movements'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: stockMovementsAsyncValue.when(
-          data: (movements) => _buildContent(context, movements),
-          loading: () => _buildLoadingIndicator(),
-          error: (error, stackTrace) => _buildErrorWidget(error),
+        appBar: AppBar(
+          title: const Text('Stock Movements'),
         ),
-      ),
-    );
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Builder(
+            builder: (context) {
+              if (stockMovementState.isListLoading) {
+                return _buildLoadingIndicator();
+              }
+
+              if (stockMovementState.stockMovementsList.isEmpty) {
+                return Center(
+                  child: Text(
+                      'No stock movemets found for ${widget.product.name}'),
+                );
+              }
+              return _buildContent(
+                  context, stockMovementState.stockMovementsList);
+            },
+          ),
+        ));
   }
 
   Widget _buildContent(
@@ -39,12 +67,31 @@ class StockMovementScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ProductDetailsCard(product: movements.first.product),
+        ProductDetailsCard(
+          product: movements.first.product,
+          onAdd: () => openForm(context, widget.product, null),
+        ),
         const SizedBox(height: 16),
         Expanded(
-          child: StockMovementsList(movements: movements),
+          child: StockMovementsList(
+            movements: movements,
+            product: widget.product,
+          ),
         ),
       ],
+    );
+  }
+
+  void openForm(
+      BuildContext context, Product product, StockMovementModel? movement) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => StockMovementForm(
+        product,
+        stockMovement: movement,
+      ),
+      enableDrag: true,
+      showDragHandle: true,
     );
   }
 
@@ -66,10 +113,11 @@ class StockMovementScreen extends ConsumerWidget {
 
 class ProductDetailsCard extends StatelessWidget {
   final Product product;
-
+  final void Function() onAdd;
   const ProductDetailsCard({
     super.key,
     required this.product,
+    required this.onAdd,
   });
 
   @override
@@ -85,7 +133,7 @@ class ProductDetailsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildProductHeader(context),
+            _buildProductHeader(context, onAdd),
             const CustomDivider(),
             _buildProductDetails(),
           ],
@@ -94,17 +142,24 @@ class ProductDetailsCard extends StatelessWidget {
     );
   }
 
-  Widget _buildProductHeader(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.fill,
-      child: Text(
-        product.name,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-        overflow: TextOverflow.ellipsis,
-      ),
+  Widget _buildProductHeader(BuildContext context, void Function() onPressed) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          product.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        IconButton.outlined(
+          onPressed: onPressed,
+          icon: Icon(Icons.add),
+          color: Colors.blue,
+        )
+      ],
     );
   }
 
@@ -145,34 +200,95 @@ class ProductDetailsCard extends StatelessWidget {
   }
 }
 
-class StockMovementsList extends StatelessWidget {
+class StockMovementsList extends ConsumerWidget {
   final List<StockMovementModel> movements;
+  final Product product;
 
   const StockMovementsList({
     super.key,
     required this.movements,
+    required this.product,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView.builder(
       itemCount: movements.length,
       itemBuilder: (context, index) => StockMovementCard(
         movement: movements[index],
         showActions: index == 0,
+        onEdit: () {
+          print("taped");
+          showModalBottomSheet(
+            context: context,
+            builder: (context) => StockMovementForm(
+              product,
+              stockMovement: movements[index],
+            ),
+            enableDrag: true,
+            showDragHandle: true,
+          );
+        },
+        onDelete: () {
+          showDeleteConfirmationDialog(
+            context: context,
+            onConfirm: () {
+              final notifier = ref.read(stockMovementNotifierProvider.notifier);
+              notifier.deleteStockMovement(movements[index].id, product.id!);
+            },
+          );
+        },
       ),
+    );
+  }
+
+  Future<void> showDeleteConfirmationDialog({
+    required BuildContext context,
+    required VoidCallback onConfirm,
+  }) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Delete"),
+          content: const Text("Are you sure you want to delete this item?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                onConfirm(); // Trigger the delete action
+              },
+              child: const Text(
+                "Yes",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class StockMovementCard extends StatelessWidget {
   final StockMovementModel movement;
+  final void Function()? onEdit;
+  final void Function()? onDelete;
+
   final bool showActions;
 
   const StockMovementCard({
     super.key,
     required this.movement,
     this.showActions = false,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -185,20 +301,25 @@ class StockMovementCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  StockMovementDetailScreen(movement: movement),
-            ),
-          );
+          // Wrap the navigation in addPostFrameCallback to delay it
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    StockMovementDetailScreen(movement: movement),
+              ),
+            );
+          });
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context),
+              _buildHeader(
+                context,
+              ),
               const CustomDivider(),
               _buildMovementDetails(),
             ],
@@ -208,7 +329,9 @@ class StockMovementCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(
+    BuildContext context,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -234,11 +357,20 @@ class StockMovementCard extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.edit, color: Colors.blue),
-          onPressed: () => _handleEdit(),
+          onPressed: () {
+            print("Edit button pressed");
+            if (onEdit != null) {
+              onEdit!(); // Invoke the function
+            }
+          },
         ),
         IconButton(
           icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () => _handleDelete(),
+          onPressed: () {
+            if (onDelete != null) {
+              onDelete!(); // Invoke the function
+            }
+          },
         ),
       ],
     );
@@ -282,13 +414,20 @@ class StockMovementCard extends StatelessWidget {
     );
   }
 
-  void _handleEdit() {
-    debugPrint('Edit movement: ${movement.id}');
-  }
+  // _onDelete() {}
 
-  void _handleDelete() {
-    debugPrint('Delete movement: ${movement.id}');
-  }
+  // _onEdit(BuildContext context) {
+  //   // Open the bottom sheet only when the user taps the edit button
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) => StockMovementForm(
+  //       product,
+  //       stockMovement: movement,
+  //     ),
+  //     enableDrag: true,
+  //     showDragHandle: true,
+  //   );
+  // }
 }
 
 class ProductDetailRow extends StatelessWidget {

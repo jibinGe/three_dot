@@ -174,11 +174,10 @@ class ProductListItem extends ConsumerWidget {
   }
 
   _showStockMovement(BuildContext context, WidgetRef ref, Product product) {
-    ref.read(selectedProductProvider.notifier).state = product.id!;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const StockMovementScreen(),
+        builder: (context) => StockMovementScreen(product),
       ),
     );
   }
