@@ -146,4 +146,26 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
       );
     }
   }
+
+  Future<void> addProducts({
+    required int inquiryId,
+    required List<SelectedProductModel> selectedProducts,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final inquiry = await _repository.updateInquiryStage4(
+        inquiryId: inquiryId,
+        selectedProducts: selectedProducts,
+      );
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
 }

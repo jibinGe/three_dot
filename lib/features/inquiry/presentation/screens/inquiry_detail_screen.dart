@@ -4,6 +4,7 @@ import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_stage2_screen.dart';
+import 'package:three_dot/features/inquiry/presentation/screens/products_adding_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/widgets/products_table.dart';
 import 'package:three_dot/features/project/presentation/widgets/project_form.dart';
 import 'package:three_dot/shared/services/location_service.dart';
@@ -239,6 +240,33 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
                 },
                 icon: const Icon(Icons.add_chart_outlined),
                 label: const Text("Go to Stage 3"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (inquiry.inquiryStage == 3) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  // await ref
+                  //     .read(inquiryNotifierProvider.notifier)
+                  //     .updateInquiryStage3(inquiryId: inquiry.id);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProductsAddingScreenScreen(inquiryId: inquiry.id),
+                      ));
+                },
+                icon: const Icon(Icons.add_box_outlined),
+                label: const Text("Add Products"),
               ),
             ],
           ),

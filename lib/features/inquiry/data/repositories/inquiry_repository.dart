@@ -193,6 +193,32 @@ class InquiryRepository {
     }
   }
 
+  Future<InquiryModel> updateInquiryStage4({
+    required int inquiryId,
+    required List<SelectedProductModel> selectedProducts,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.put(
+        '/inquiry/$inquiryId',
+        data: {
+          'selected_products': selectedProducts.map((p) => p.toJson()).toList(),
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+
+      return InquiryModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to update inquiry: $e');
+    }
+  }
+
   Future<InquiryModel> getInquiry(int id) async {
     final String? accessToken = await _storageService.getToken();
 
