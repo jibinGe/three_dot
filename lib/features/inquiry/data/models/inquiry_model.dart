@@ -7,26 +7,26 @@ class InquiryModel {
   final String inquiryNumber;
   final int inquiryStage;
   final String name;
-  final String? consumerNumber; // Nullable
-  final String? address; // Nullable
-  final String? mobileNumber; // Nullable
-  final String? email; // Nullable
-  final LocationModel? location; // Nullable
-  final ReferredByModel? referredBy; // Nullable
-  final DateTime? createdAt; // Nullable
-  final DateTime? updatedAt; // Nullable
-  final String? roofType; // Nullable
-  final String? roofSpecification; // Nullable
-  final double? proposedAmount; // Nullable
-  final double? proposedCapacity; // Nullable
-  final String? paymentTerms; // Nullable
-  final double? totalCost; // Nullable
-  final String? quotationStatus; // Nullable
-  final String? quotationRejectionReason; // Nullable
-  final String? confirmationStatus; // Nullable
-  final String? confirmationRejectionReason; // Nullable
-  final double? agreedAmount; // Nullable
-  final List<SelectedProductModel>? selectedProducts; // Nullable
+  final String? consumerNumber;
+  final String? address;
+  final String? mobileNumber;
+  final String? email;
+  final LocationModel? location;
+  final ReferredByModel? referredBy;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final String? roofType;
+  final String? roofSpecification;
+  final double? proposedAmount;
+  final double? proposedCapacity;
+  final String? paymentTerms;
+  final double? totalCost;
+  final String? quotationStatus;
+  final String? quotationRejectionReason;
+  final String? confirmationStatus;
+  final String? confirmationRejectionReason;
+  final double? agreedAmount;
+  final List<SelectedProductModel>? selectedProducts;
 
   InquiryModel({
     required this.id,

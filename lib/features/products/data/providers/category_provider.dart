@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:three_dot/features/products/data/models/categories_state.dart';
 import 'package:three_dot/features/products/data/models/product_category_model.dart';
@@ -16,6 +17,7 @@ class CategoryNotifier extends StateNotifier<CategoriesState> {
 
   Future getAllCategories() async {
     try {
+      debugPrint("getting all categories");
       state = state.copyWith(
         isListLoading: true,
       );
@@ -25,6 +27,7 @@ class CategoryNotifier extends StateNotifier<CategoriesState> {
         isListLoading: false,
       );
     } catch (e) {
+      print(e.toString());
       state = state.copyWith(
         isListLoading: false,
         error: e.toString(),

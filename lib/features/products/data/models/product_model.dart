@@ -34,22 +34,35 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    print(json['name']);
+    print(json['manufacturer']);
+    print(json['model']);
+    print(json['unit_type']);
     return Product(
-      category: ProductCategory.fromJson(json['category']),
-      name: json['name'],
-      manufacturer: json['manufacturer'],
-      model: json['model'],
-      specifications: Map<String, dynamic>.from(json['specifications']),
-      unitPrice: json['unit_price'].toDouble(),
-      unitType: json['unit_type'],
-      stock: json['stock'],
-      averageCost: json['average_cost'].toDouble(),
+      category: json['category'] != null
+          ? ProductCategory.fromJson(json['category'])
+          : null,
+      name: json['name'] ?? '', // Provide a default value to avoid null issues
+      manufacturer: json['manufacturer'] ?? '',
+      model: json['model'] ?? '',
+      specifications: Map<String, dynamic>.from(json['specifications'] ?? {}),
+      unitPrice: json['unit_price'] != null
+          ? (json['unit_price'] as num?)?.toDouble() ?? 0.0
+          : 0.0,
+      unitType: json['unit_type'] ?? '',
+      stock: json['stock'] as int?,
+      averageCost: json['average_cost'] != null
+          ? (json['average_cost'] as num?)?.toDouble() ?? 0.0
+          : 0.0,
       description: json['description'],
-      id: json['id'],
-      categoryId: json['category_id'],
-      createdAt: DateTime.parse(json['created_at']),
+      id: json['id'] as int?,
+      categoryId:
+          json['category_id'] as int? ?? 0, // Assign a default value if null
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
+          ? DateTime.tryParse(json['updated_at'])
           : null,
     );
   }

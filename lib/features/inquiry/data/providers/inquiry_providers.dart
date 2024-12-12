@@ -36,12 +36,11 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.getInquiry(id);
-      state = state.copyWith(isLoading: false, inquiry: inquiry, error: null);
+      state = state.copyWith(isLoading: false, inquiry: inquiry);
+      print("Inquiry fetched successfully: ${inquiry.id}");
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
+      print("Error fetching inquiry: $e");
     }
   }
 

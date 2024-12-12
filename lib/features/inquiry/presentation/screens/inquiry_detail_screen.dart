@@ -38,26 +38,11 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final inquiryState = ref.watch(inquiryNotifierProvider);
+    print("Current State: ${inquiryState.inquiry}");
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inquiry Details'),
-        // actions: [
-        //   if (inquiryState.inquiry != null)
-        //     IconButton(
-        //       icon: const Icon(Icons.edit),
-        //       onPressed: () {
-        //         Navigator.push(
-        //           context,
-        //           MaterialPageRoute(
-        //             builder: (context) => InquiryStage2Screen(
-        //               inquiryId: widget.inquiryId,
-        //             ),
-        //           ),
-        //         );
-        //       },
-        //     ),
-        // ],
       ),
       body: Builder(
         builder: (context) {
@@ -65,12 +50,11 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final inquiry = inquiryState.inquiry;
-          if (inquiry == null) {
+          if (inquiryState.inquiry == null) {
             return const Center(child: Text('No data available'));
           }
 
-          return _buildInquiryDetails(inquiry);
+          return _buildInquiryDetails(inquiryState.inquiry!);
         },
       ),
       floatingActionButton: (inquiryState.inquiry != null &&

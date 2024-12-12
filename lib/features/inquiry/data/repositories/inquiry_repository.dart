@@ -234,6 +234,7 @@ class InquiryRepository {
       log(response.data.toString());
       return InquiryModel.fromJson(response.data);
     } catch (e) {
+      print('Failed to get inquiry: $e');
       throw Exception('Failed to get inquiry: $e');
     }
   }

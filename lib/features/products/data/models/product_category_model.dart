@@ -18,10 +18,12 @@ class ProductCategory {
   factory ProductCategory.fromJson(Map<String, dynamic> json) {
     return ProductCategory(
       id: json['id'],
-      name: json['name'],
-      code: json['code'],
-      description: json['description'],
-      createdAt: DateTime.parse(json['created_at']),
+      name: json['name'] ?? "",
+      code: json['code'] ?? "",
+      description: json['description'] ?? "",
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,

@@ -30,7 +30,7 @@ class SelectedProductModel {
       id: json['id'] ?? 0,
       name: json['name'],
       productId: json['product_id'] ?? 0,
-      quantity: json['quantity'] ?? 0,
+      quantity: json['quantity'].toDouble() ?? 0.0,
       unitPrice: json['unit_price']?.toDouble() ?? 0.0,
       product:
           json['product'] != null ? Product.fromJson(json['product']) : null,

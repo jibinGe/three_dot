@@ -159,11 +159,13 @@ class ProductRepository {
           },
         ),
       );
-
+      log(response.statusCode.toString());
+      log(response.data.toString());
       return (response.data as List)
           .map((json) => ProductCategory.fromJson(json))
           .toList();
     } catch (e) {
+      print('Failed to fetch categories: $e');
       throw Exception('Failed to fetch categories: $e');
     }
   }
