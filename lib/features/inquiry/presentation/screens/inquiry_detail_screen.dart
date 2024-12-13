@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:three_dot/core/theme/app_colors.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_stage2_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/products_adding_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/widgets/products_table.dart';
+import 'package:three_dot/features/inquiry/presentation/widgets/quotation_form.dart';
 import 'package:three_dot/features/project/presentation/widgets/project_form.dart';
 import 'package:three_dot/shared/services/location_service.dart';
 
@@ -57,21 +59,21 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
           return _buildInquiryDetails(inquiryState.inquiry!);
         },
       ),
-      floatingActionButton: (inquiryState.inquiry != null &&
-              inquiryState.inquiry?.inquiryStage == 4)
-          ? ElevatedButton.icon(
-              icon: const Icon(Icons.build),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) =>
-                      ProjectForm(inquiry: inquiryState.inquiry!),
-                );
-              },
-              label: const Text("Start Project"),
-            )
-          : null,
+      // floatingActionButton: (inquiryState.inquiry != null &&
+      //         inquiryState.inquiry?.inquiryStage == 4)
+      //     ? ElevatedButton.icon(
+      //         icon: const Icon(Icons.build),
+      //         onPressed: () {
+      //           showModalBottomSheet(
+      //             context: context,
+      //             isScrollControlled: true,
+      //             builder: (context) =>
+      //                 ProjectForm(inquiry: inquiryState.inquiry!),
+      //           );
+      //         },
+      //         label: const Text("Start Project"),
+      //       )
+      //     : null,
     );
   }
 
@@ -168,9 +170,25 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
 
     final quotationDetails = _buildSection("Quotation Details", [
       if (inquiry.quotationStatus != null)
-        _buildInfoRow('Quotation Status', inquiry.quotationStatus!),
+        _buildInfoRow('Quotation Status', inquiry.quotationStatus!,
+            color: inquiry.quotationStatus == "accepted"
+                ? Colors.green
+                : inquiry.quotationStatus == "rejected"
+                    ? Colors.red
+                    : Colors.yellow),
+      if (inquiry.quotationStatus == "rejected")
+        _buildInfoRow('Quotation Rejection Reason',
+            inquiry.quotationRejectionReason ?? ""),
       if (inquiry.confirmationStatus != null)
-        _buildInfoRow('Confirmation Status', inquiry.confirmationStatus!),
+        _buildInfoRow('Confirmation Status', inquiry.confirmationStatus!,
+            color: inquiry.confirmationStatus == "accepted"
+                ? Colors.green
+                : inquiry.confirmationStatus == "rejected"
+                    ? Colors.red
+                    : Colors.yellow),
+      if (inquiry.confirmationStatus == "rejected")
+        _buildInfoRow('Confirmation Rejection Reason',
+            inquiry.confirmationRejectionReason ?? ""),
       if (inquiry.paymentTerms != null)
         _buildInfoRow('Payment Terms', inquiry.paymentTerms!),
       if (inquiry.totalCost != null)
@@ -250,7 +268,79 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
                       ));
                 },
                 icon: const Icon(Icons.add_box_outlined),
-                label: const Text("Add Products"),
+                label: Text((inquiry.selectedProducts?.isEmpty ?? false)
+                    ? "Add Products"
+                    : "Edit Products"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (inquiry.inquiryStage == 3 &&
+        (inquiry.selectedProducts?.isNotEmpty ?? false)) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await ref
+                      .read(inquiryNotifierProvider.notifier)
+                      .updateInquiryStage4(inquiryId: inquiry.id);
+                },
+                icon: const Icon(Icons.add_chart_outlined),
+                label: Text("Go to Stage 4"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (inquiry.inquiryStage == 4) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => QuotationForm(inquiry: inquiry),
+                  );
+                },
+                icon: const Icon(Icons.edit_document),
+                label: Text("Update Quotation Details"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (inquiry.inquiryStage == 4 &&
+        inquiry.quotationStatus == "accepted" &&
+        inquiry.confirmationStatus == "accepted") {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => ProjectForm(inquiry: inquiry),
+                  );
+                },
+                icon: const Icon(Icons.build),
+                label: Text("Start Project"),
               ),
             ],
           ),
@@ -294,7 +384,8 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(String label, String value,
+      {Color? color = AppColors.textPrimary}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -312,7 +403,10 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
           ),
           Expanded(
             flex: 5,
-            child: Text(value),
+            child: Text(
+              value,
+              style: TextStyle(color: color),
+            ),
           ),
         ],
       ),

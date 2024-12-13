@@ -168,6 +168,41 @@ class InquiryRepository {
     }
   }
 
+  Future<InquiryModel> updateQuotationStatus({
+    required int inquiryId,
+    required String quotationStatus,
+    required String confirmationStatus,
+    required String confirmationRejectionReason,
+    required String quotationRejectionReason,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.put(
+        '/inquiry/$inquiryId',
+        data: {
+          'inquiry_stage': 4,
+          'quotation_status': quotationStatus,
+          'confirmation_status': confirmationStatus,
+          if (quotationRejectionReason != "")
+            'quotation_rejection_reason': quotationRejectionReason,
+          if (confirmationRejectionReason != "")
+            'confirmation_rejection_reason': confirmationRejectionReason,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+
+      return InquiryModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to update inquiry: $e');
+    }
+  }
+
   Future<InquiryModel> updateInquiryStage3({
     required int inquiryId,
   }) async {
@@ -178,6 +213,56 @@ class InquiryRepository {
         '/inquiry/$inquiryId',
         data: {
           'inquiry_stage': 3,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+
+      return InquiryModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to update inquiry: $e');
+    }
+  }
+
+  Future<InquiryModel> updateInquiryToStage4({
+    required int inquiryId,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.put(
+        '/inquiry/$inquiryId',
+        data: {
+          'inquiry_stage': 4,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+
+      return InquiryModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to update inquiry: $e');
+    }
+  }
+
+  Future<InquiryModel> updateInquiryToStage5({
+    required int inquiryId,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.put(
+        '/inquiry/$inquiryId',
+        data: {
+          'inquiry_stage': 5,
         },
         options: Options(
           headers: {

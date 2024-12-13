@@ -126,12 +126,80 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
     }
   }
 
+  Future<void> updateQuotationStatus({
+    required int inquiryId,
+    required String quotationStatus,
+    required String confirmationStatus,
+    required String quotationRejectionReason,
+    required String confirmationRejectionReason,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final inquiry = await _repository.updateQuotationStatus(
+        inquiryId: inquiryId,
+        quotationStatus: quotationStatus,
+        confirmationStatus: confirmationStatus,
+        quotationRejectionReason: quotationRejectionReason,
+        confirmationRejectionReason: confirmationRejectionReason,
+      );
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
   Future<void> updateInquiryStage3({
     required int inquiryId,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.updateInquiryStage3(
+        inquiryId: inquiryId,
+      );
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<void> updateInquiryStage4({
+    required int inquiryId,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final inquiry = await _repository.updateInquiryToStage4(
+        inquiryId: inquiryId,
+      );
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<void> updateInquiryStage5({
+    required int inquiryId,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final inquiry = await _repository.updateInquiryToStage5(
         inquiryId: inquiryId,
       );
       state = state.copyWith(

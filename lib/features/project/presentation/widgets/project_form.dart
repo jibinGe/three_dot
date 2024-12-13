@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
+import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart';
 import 'package:three_dot/features/project/data/providers/projects_provider.dart';
 import 'package:three_dot/features/project/presentation/screens/project_details_screen.dart';
 
@@ -245,6 +246,9 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
             );
 
         if (isSuccess && mounted) {
+          await ref
+              .read(inquiryNotifierProvider.notifier)
+              .updateInquiryStage4(inquiryId: widget.inquiry.id);
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,
