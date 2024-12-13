@@ -35,7 +35,11 @@ class _ProductsAddingScreenScreenState
   }
 
   void _loadInitialData() async {
-    await ref.read(categoriesSateProvider.notifier).getAllCategories();
+    Future.microtask(() {
+      ref.read(categoriesSateProvider.notifier).getAllCategories();
+    });
+
+    // await ref.read(categoriesSateProvider.notifier).getAllCategories();
     _loadInquiryData();
   }
 
@@ -142,6 +146,13 @@ class _ProductsAddingScreenScreenState
                   ? categories.first.id
                   : selectedCategory,
               items: categories.map((category) {
+                Future.microtask(() {
+                  ref.read(selectedCategoryProvider.notifier).state =
+                      selectedCategory == 0 && categories.isNotEmpty
+                          ? categories.first.id!
+                          : selectedCategory;
+                });
+
                 return DropdownMenuItem(
                   value: category.id,
                   child: Text(

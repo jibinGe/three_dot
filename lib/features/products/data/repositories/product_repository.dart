@@ -35,6 +35,7 @@ class ProductRepository {
 
   Future<List<Product>> getProductsByCategory(int category) async {
     try {
+      debugPrint("getting products>>>>>>>>>>>>>>>>");
       final formData =
           FormData.fromMap({'category': category, 'skip': 0, 'limit': 100});
       final String? accessToken = await _storageService.getToken();
@@ -50,7 +51,8 @@ class ProductRepository {
           },
         ),
       );
-
+      log(response.statusCode.toString());
+      log(response.data.toString());
       return (response.data as List)
           .map((json) => Product.fromJson(json))
           .toList();

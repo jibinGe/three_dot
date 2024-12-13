@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 
+import 'package:flutter/material.dart';
+
 class ProductTable extends StatelessWidget {
   final List<SelectedProductModel> products;
 
@@ -9,6 +11,12 @@ class ProductTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
+
+    double calculateSubTotal() {
+      return products.fold(
+          0, (sum, product) => sum + (product.unitPrice * product.quantity));
+    }
+
     return Scrollbar(
       controller: scrollController,
       interactive: true,
@@ -27,55 +35,75 @@ class ProductTable extends StatelessWidget {
             columnSpacing: 15,
             horizontalMargin: 15,
             columns: const [
-              DataColumn(label: Text('no')),
+              DataColumn(label: Text('No')),
               DataColumn(label: Text('Product Name')),
               DataColumn(label: Text('Price')),
               DataColumn(label: Text('Quantity')),
+              DataColumn(label: Text('Total Amount')),
             ],
-            rows: List.generate(products.length, (index) {
-              final product = products[index];
-              return DataRow(cells: [
-                DataCell(
-                  SizedBox(
-                    child: Center(child: Text((index + 1).toString())),
-                  ),
-                ),
-                DataCell(
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 150),
-                    child: Text(
-                      product.name ?? product.product?.name ?? 'N/A',
-                      // overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
+            rows: [
+              ...List.generate(products.length, (index) {
+                final product = products[index];
+                final totalAmount = product.unitPrice * product.quantity;
+                return DataRow(cells: [
+                  DataCell(
+                    SizedBox(
+                      child: Center(child: Text((index + 1).toString())),
                     ),
                   ),
-                ),
-                DataCell(
-                  FittedBox(
-                    child: Text('${product.unitPrice.toStringAsFixed(0)}'),
-                  ),
-                ),
-                DataCell(
-                  FittedBox(
-                    child: Text.rich(
-                      TextSpan(
-                        text:
-                            '${product.quantity.toStringAsFixed(0)} ', // Main text
-
-                        children: [
-                          TextSpan(
-                            text:
-                                '(${product.product?.unitType ?? ""})', // Smaller text
-                            style: TextStyle(
-                                fontSize: 9), // Smaller size for unitType
-                          ),
-                        ],
+                  DataCell(
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 150),
+                      child: Text(
+                        product.name ?? product.product?.name ?? 'N/A',
+                        maxLines: 2,
                       ),
                     ),
                   ),
+                  DataCell(
+                    FittedBox(
+                      child: Text('${product.unitPrice.toStringAsFixed(0)}'),
+                    ),
+                  ),
+                  DataCell(
+                    FittedBox(
+                      child: Text.rich(
+                        TextSpan(
+                          text: '${product.quantity.toStringAsFixed(0)} ',
+                          children: [
+                            TextSpan(
+                              text: '(${product.product?.unitType ?? ""})',
+                              style: TextStyle(fontSize: 9),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    FittedBox(
+                      child: Text('${totalAmount.toStringAsFixed(2)}'),
+                    ),
+                  ),
+                ]);
+              }),
+              // Add Subtotal Row
+              DataRow(cells: [
+                const DataCell(SizedBox()), // Empty cell for "No"
+                const DataCell(Text('Subtotal',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+                const DataCell(SizedBox()), // Empty cell for "Price"
+                const DataCell(SizedBox()), // Empty cell for "Quantity"
+                DataCell(
+                  FittedBox(
+                    child: Text(
+                      '${calculateSubTotal().toStringAsFixed(2)}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
-              ]);
-            }),
+              ]),
+            ],
           ),
         ),
       ),
