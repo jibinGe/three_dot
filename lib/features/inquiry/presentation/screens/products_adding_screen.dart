@@ -231,7 +231,7 @@ class _ProductsAddingScreenScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          product.name ?? "Product ${product.id}",
+                          product.product?.name ?? "Product ${product.id}",
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         Text(
