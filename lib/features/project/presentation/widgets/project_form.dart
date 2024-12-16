@@ -248,7 +248,7 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
         if (isSuccess && mounted) {
           await ref
               .read(inquiryNotifierProvider.notifier)
-              .updateInquiryStage4(inquiryId: widget.inquiry.id);
+              .updateInquiryStage5(inquiryId: widget.inquiry.id);
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,

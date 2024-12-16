@@ -183,4 +183,26 @@ class ProjectRepository {
       throw Exception('Failed to get project timeline: $e');
     }
   }
+
+  Future updateWorkFlow(int projectId, int stageId, String remarks) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.post(
+        '/Workflow/workflow/status-update/$projectId',
+        queryParameters: {"new_status_id": stageId, "remarks": remarks},
+        options: Options(
+          headers: {
+            // 'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+      log(response.statusCode.toString());
+      log(response.data.toString());
+      return response;
+    } catch (e) {
+      debugPrint('Failed to update workflow: $e');
+      throw Exception('Failed to update workflow: $e');
+    }
+  }
 }

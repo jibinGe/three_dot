@@ -44,18 +44,21 @@ class _ProjectTimelineScreenState extends ConsumerState<ProjectTimelineScreen> {
     // Combine all stages in order: history (completed) -> current -> next
     final allStages = [
       ...timeline.history.map((h) => _TimelineItem(
+            id: h.stageId,
             title: h.stageName,
             status: 'completed',
             date: h.date,
             remarks: h.remarks,
           )),
       _TimelineItem(
+        id: timeline.currentStatus.stageId,
         title: timeline.currentStatus.stageName,
         status: timeline.currentStatus.status,
         date: null,
         remarks: '',
       ),
       ...timeline.nextStages.map((n) => _TimelineItem(
+            id: n.stageId,
             title: n.stageName,
             status: 'upcoming',
             date: null,
@@ -90,51 +93,102 @@ class _ProjectTimelineScreenState extends ConsumerState<ProjectTimelineScreen> {
   Widget _buildTimelineCard(_TimelineItem item, ProjectTimelineModel timeline) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              if (item.date != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  DateFormat('MMM dd, yyyy HH:mm').format(item.date!),
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
+      child: InkWell(
+        onTap: () {
+          if (item.status == "upcoming") {
+            showAdaptiveDialog(
+              context: context,
+              builder: (context) {
+                String textFieldValue =
+                    ''; // Variable to store the input from TextField
+                return AlertDialog(
+                  title: Text(item.title), // Title of the dialog
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Remarks:'),
+                      TextField(
+                        onChanged: (value) {
+                          textFieldValue = value; // Capture the input value
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Enter remarks here...',
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-              if (item.remarks.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        print("taped");
+                        ref
+                            .read(projectTimelineProvider.notifier)
+                            .updateWorkFlow(
+                                widget.projectId, item.id, textFieldValue);
+                        Navigator.pop(context); // Close the dialog
+                      },
+                      child: Text('Confirm'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(
+                            context); // Close the dialog if Cancel is clicked
+                      },
+                      child: Text('Cancel'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        },
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text(
-                  'Remarks: ${item.remarks}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-              if (item.status == timeline.currentStatus.status) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Status: ${item.status.replaceAll('_', ' ').toUpperCase()}',
-                  style: TextStyle(
-                    color: Colors.orange,
+                  item.title,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
+                if (item.date != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    DateFormat('MMM dd, yyyy HH:mm').format(item.date!),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+                if (item.remarks.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Remarks: ${item.remarks}',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+                if (item.status == timeline.currentStatus.status) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Status: ${item.status.replaceAll('_', ' ').toUpperCase()}',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -178,12 +232,14 @@ class _ProjectTimelineScreenState extends ConsumerState<ProjectTimelineScreen> {
 }
 
 class _TimelineItem {
+  final int id;
   final String title;
   final String status;
   final DateTime? date;
   final String remarks;
 
   _TimelineItem({
+    required this.id,
     required this.title,
     required this.status,
     required this.date,

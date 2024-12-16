@@ -109,4 +109,22 @@ class ProjectTimelineNotifier extends StateNotifier<ProjectTimelineState> {
       );
     }
   }
+
+  Future<void> updateWorkFlow(
+      int projectId, int stageId, String remarks) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      print("projectId : $projectId");
+      print("stageId : $stageId");
+      print("remarks : $remarks");
+      await _repository.updateWorkFlow(projectId, stageId, remarks);
+      getTimeline(projectId);
+      state = state.copyWith(isLoading: false, error: null);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
 }
