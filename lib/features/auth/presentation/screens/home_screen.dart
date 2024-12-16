@@ -215,13 +215,13 @@ class HomeScreen extends ConsumerWidget {
                 children: [
                   MetricCard(
                     title: 'Total Revenue',
-                    value: '\$${currencyFormat.format(24500)}',
+                    value: '\₹${currencyFormat.format(24500)}',
                     icon: Icons.attach_money,
                     color: Colors.green,
                   ),
                   MetricCard(
                     title: 'Total Expenses',
-                    value: '\$${currencyFormat.format(18000)}',
+                    value: '\₹${currencyFormat.format(18000)}',
                     icon: Icons.shopping_cart,
                     color: Colors.red,
                   ),

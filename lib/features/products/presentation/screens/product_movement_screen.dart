@@ -181,7 +181,7 @@ class ProductDetailsCard extends StatelessWidget {
         ProductDetailRow(
           icon: Icons.attach_money,
           label: 'Unit Price',
-          value: '\$${product.unitPrice.toStringAsFixed(2)}',
+          value: '\₹${product.unitPrice.toStringAsFixed(2)}',
           iconColor: Colors.green,
         ),
         ProductDetailRow(
@@ -397,7 +397,7 @@ class StockMovementCard extends StatelessWidget {
         ProductDetailRow(
           icon: Icons.monetization_on,
           label: 'Unit Price',
-          value: '\$${movement.unitPrice.toStringAsFixed(2)}',
+          value: '\₹${movement.unitPrice.toStringAsFixed(2)}',
         ),
         ProductDetailRow(
           icon: Icons.inventory,

@@ -72,7 +72,7 @@ class _StockMovementDetailScreenState
                       _buildDetailRow(Icons.numbers, 'Quantity',
                           movement.quantity.toString()),
                       _buildDetailRow(Icons.price_change, 'Unit Price',
-                          '\$${movement.unitPrice.toStringAsFixed(2)}'),
+                          '\₹${movement.unitPrice.toStringAsFixed(2)}'),
                       _buildDetailRow(Icons.confirmation_number,
                           'Reference Number', movement.referenceNumber),
                       _buildDetailRow(
@@ -80,7 +80,7 @@ class _StockMovementDetailScreenState
                       _buildDetailRow(Icons.inventory, 'Stock After',
                           movement.stockAfter.toString()),
                       _buildDetailRow(Icons.price_check, 'Average Cost After',
-                          '\$${movement.averageCostAfter.toStringAsFixed(2)}'),
+                          '\₹${movement.averageCostAfter.toStringAsFixed(2)}'),
                       _buildDetailRow(Icons.date_range, 'Created At',
                           DateFormat('dd MMM yyyy').format(movement.createdAt)),
                       if (movement.updatedAt != null)
@@ -101,7 +101,7 @@ class _StockMovementDetailScreenState
                       _buildDetailRow(Icons.model_training, 'Model',
                           movement.product.model),
                       _buildDetailRow(Icons.price_change, 'Unit Price',
-                          '\$${movement.product.unitPrice.toStringAsFixed(2)}'),
+                          '\₹${movement.product.unitPrice.toStringAsFixed(2)}'),
                       _buildDetailRow(Icons.inventory, 'Stock',
                           movement.product.stock?.toString() ?? 'N/A'),
                     ]),

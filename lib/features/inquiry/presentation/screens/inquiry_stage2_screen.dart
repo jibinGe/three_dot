@@ -593,7 +593,7 @@ class _InquiryStage2ScreenState extends ConsumerState<InquiryStage2Screen> {
               return ListTile(
                 title: Text(product.name ?? "Product :${product.id}"),
                 subtitle: Text(
-                  'Quantity: ${product.quantity} \nUnit Price: \$${product.unitPrice}',
+                  'Quantity: ${product.quantity} \nUnit Price: \₹${product.unitPrice}',
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),

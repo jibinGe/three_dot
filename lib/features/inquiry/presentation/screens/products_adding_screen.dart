@@ -185,7 +185,7 @@ class _ProductsAddingScreenScreenState
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.75,
+              childAspectRatio: 0.70,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
@@ -231,7 +231,9 @@ class _ProductsAddingScreenScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          product.product?.name ?? "Product ${product.id}",
+                          product.product?.name ??
+                              product.name ??
+                              "Product ${product.id}",
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         Text(
