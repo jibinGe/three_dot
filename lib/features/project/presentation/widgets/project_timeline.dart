@@ -32,11 +32,11 @@ class _ProjectTimelineScreenState extends ConsumerState<ProjectTimelineScreen> {
     return Scaffold(
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : state.error != null
-              ? Center(child: Text('Error: ${state.error}'))
-              : state.timeline == null
-                  ? const Center(child: Text('No timeline data available'))
-                  : _buildTimeline(state.timeline!),
+          // : state.error != null
+          //     ? Center(child: Text('Error: ${state.error}'))
+          : state.timeline == null
+              ? const Center(child: Text('No timeline data available'))
+              : _buildTimeline(state.timeline!),
     );
   }
 

@@ -65,7 +65,7 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
         location: location,
         // referredById: referredById ?? 1,
       );
-      getAllInquiries();
+      getAllInquiries(stage: "1");
       state = state.copyWith(
         isLoading: false,
         inquiry: inquiry,
@@ -162,6 +162,7 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
       final inquiry = await _repository.updateInquiryStage3(
         inquiryId: inquiryId,
       );
+      getAllInquiries(stage: "2");
       state = state.copyWith(
         isLoading: false,
         inquiry: inquiry,
@@ -182,6 +183,7 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
       final inquiry = await _repository.updateInquiryToStage4(
         inquiryId: inquiryId,
       );
+      getAllInquiries(stage: "3");
       state = state.copyWith(
         isLoading: false,
         inquiry: inquiry,
@@ -202,6 +204,7 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
       final inquiry = await _repository.updateInquiryToStage5(
         inquiryId: inquiryId,
       );
+      getAllInquiries(stage: "4");
       state = state.copyWith(
         isLoading: false,
         inquiry: inquiry,
