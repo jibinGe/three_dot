@@ -10,6 +10,7 @@ import 'package:three_dot/features/inquiry/presentation/widgets/products_table.d
 import 'package:three_dot/features/inquiry/presentation/widgets/quotation_form.dart';
 import 'package:three_dot/features/project/presentation/widgets/project_form.dart';
 import 'package:three_dot/shared/services/location_service.dart';
+import 'package:three_dot/shared/services/pdf_generator.dart';
 
 class InquiryDetailScreen extends ConsumerStatefulWidget {
   final int inquiryId;
@@ -322,6 +323,27 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
         ),
       );
     }
+    if (inquiry.inquiryStage == 4) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await ref
+                      .read(inquiryNotifierProvider.notifier)
+                      .showPdf(context, inquiry);
+                },
+                icon: const Icon(Icons.file_open_sharp),
+                label: Text("Generate Quotation"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     if (inquiry.inquiryStage == 4 &&
         inquiry.quotationStatus == "accepted" &&
         inquiry.confirmationStatus == "accepted") {
@@ -347,6 +369,7 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
         ),
       );
     }
+
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: sections,
@@ -412,4 +435,36 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
       ),
     );
   }
+
+  // void generatePDF() async {
+  //   final pdfGenerator = SolarQuotationPDF();
+  //   final file = await pdfGenerator.generateQuotation(
+  //     customerName: 'George',
+  //     address: 'Nellikunnu\nThrissur',
+  //     mobile: '8075693860',
+  //     refNumber: '3DOT/SP/431/2024',
+  //     date: DateTime.now(),
+  //     totalAmount: 210000.00,
+  //     subsidyAmount: 78000.00,
+  //   );
+  //   print(file.path);
+  // }
+
+  // void sharePDF() async {
+  //   try {
+  //     final pdfGenerator = SolarQuotationPDF();
+  //     await pdfGenerator.generateAndShareQuotation(
+  //       customerName: 'George',
+  //       address: 'Nellikunnu\nThrissur',
+  //       mobile: '8075693860',
+  //       refNumber: '3DOT/SP/431/2024',
+  //       date: DateTime.now(),
+  //       totalAmount: 210000.00,
+  //       subsidyAmount: 78000.00,
+  //     );
+  //   } catch (e) {
+  //     print('Error sharing PDF: $e');
+  //     // Handle error appropriately in your UI
+  //   }
+  // }
 }

@@ -1,8 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
+import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_state.dart';
 import 'package:three_dot/features/inquiry/data/models/location_model.dart';
 import 'package:three_dot/features/inquiry/data/models/selected_product_model.dart';
 import 'package:three_dot/features/inquiry/data/repositories/inquiry_repository.dart';
+import 'package:three_dot/features/inquiry/presentation/screens/pdf_viewer.dart';
+import 'package:three_dot/shared/services/pdf_generator.dart';
 
 final inquiryRepositoryProvider = Provider<InquiryRepository>((ref) {
   return InquiryRepository();
@@ -235,6 +240,30 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
+      );
+    }
+  }
+
+  Future<void> showPdf(BuildContext context, InquiryModel inquiry) async {
+    try {
+      final generator = QuotationPdfGenerator(inquiry: inquiry);
+      final pdf = await generator.generatePdf();
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => QuotationPdfViewer(
+            inquiry: inquiry,
+            pdfBytes: pdf,
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error generating PDF: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
