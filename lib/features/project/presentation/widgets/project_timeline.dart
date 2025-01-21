@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:three_dot/features/project/data/model/project_timeline_model.dart';
 import 'package:three_dot/features/project/data/providers/projects_provider.dart';
-import 'package:timelines/timelines.dart';
+import 'package:timelines_plus/timelines_plus.dart';
 
 class ProjectTimelineScreen extends ConsumerStatefulWidget {
   final int projectId;
