@@ -5,6 +5,7 @@ import 'package:three_dot/core/theme/app_colors.dart';
 import 'package:three_dot/features/all_works/data/providers/all_work_provider.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/inquiry/presentation/screens/inquiry_detail_screen.dart';
+import 'package:three_dot/features/inquiry/presentation/screens/inquiry_form_screen.dart';
 
 class AllWorkListScreen extends ConsumerStatefulWidget {
   final int inquirySate;
@@ -54,7 +55,29 @@ class _AllWorkListScreenState extends ConsumerState<AllWorkListScreen> {
           : state.error != null
               ? Center(child: Text('Error: ${state.error}'))
               : state.inquiries.isEmpty
-                  ? const Center(child: Text('No projects found'))
+                  ? widget.inquirySate == 1
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('No projects found'),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const InquiryFormScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text('Create New Inquiry'),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const Center(child: Text('No projects found'))
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: state.inquiries.length,
@@ -97,7 +120,10 @@ class _AllWorkListScreenState extends ConsumerState<AllWorkListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => InquiryDetailScreen(inquiryId: inquiry.id),
+              builder: (context) => InquiryDetailScreen(
+                inquiryId: inquiry.id,
+                isFromHomePage: true,
+              ),
             ),
           );
         },

@@ -7,10 +7,10 @@ import 'package:three_dot/features/inquiry/data/providers/inquiry_providers.dart
 
 class QuotationForm extends ConsumerStatefulWidget {
   final InquiryModel inquiry;
-  const QuotationForm({
-    Key? key,
-    required this.inquiry,
-  }) : super(key: key);
+  final bool? isConfirmationOnly;
+  const QuotationForm(
+      {Key? key, required this.inquiry, this.isConfirmationOnly = false})
+      : super(key: key);
 
   @override
   ConsumerState<QuotationForm> createState() => _QuotationFormState();
@@ -75,7 +75,7 @@ class _QuotationFormState extends ConsumerState<QuotationForm> {
             ),
           ),
           const SizedBox(height: 30),
-          _buildQuotationStatus(),
+          if (!widget.isConfirmationOnly!) _buildQuotationStatus(),
           const SizedBox(height: 16),
           _buildConfirmationStatus(),
           const SizedBox(height: 16),
@@ -230,13 +230,12 @@ class _QuotationFormState extends ConsumerState<QuotationForm> {
     if (_formKey.currentState!.validate()) {
       try {
         await ref.read(inquiryNotifierProvider.notifier).updateQuotationStatus(
-              inquiryId: widget.inquiry.id,
-              quotationStatus: _selectedQuotationStatus,
-              confirmationStatus: _selectedConfirmationStatus,
-              quotationRejectionReason: _quotationRejectionController.text,
-              confirmationRejectionReason:
-                  _confirmationRejectionController.text,
-            );
+            inquiryId: widget.inquiry.id,
+            quotationStatus: _selectedQuotationStatus,
+            confirmationStatus: _selectedConfirmationStatus,
+            quotationRejectionReason: _quotationRejectionController.text,
+            confirmationRejectionReason: _confirmationRejectionController.text,
+            isConfirmationOnly: widget.isConfirmationOnly!);
 
         if (mounted) {
           Navigator.pop(context);

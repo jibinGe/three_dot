@@ -174,6 +174,40 @@ class InquiryRepository {
     required String confirmationStatus,
     required String confirmationRejectionReason,
     required String quotationRejectionReason,
+    required bool isConfirmationOnly,
+  }) async {
+    final String? accessToken = await _storageService.getToken();
+
+    try {
+      final response = await _dio.put(
+        '/inquiry/$inquiryId',
+        data: {
+          'inquiry_stage': 4,
+          if (!isConfirmationOnly) 'quotation_status': quotationStatus,
+          'confirmation_status': confirmationStatus,
+          if (quotationRejectionReason != "" && !isConfirmationOnly)
+            'quotation_rejection_reason': quotationRejectionReason,
+          if (confirmationRejectionReason != "")
+            'confirmation_rejection_reason': confirmationRejectionReason,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${accessToken ?? ""}',
+          },
+        ),
+      );
+
+      return InquiryModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to update inquiry: $e');
+    }
+  }
+
+  Future<InquiryModel> updateQuotationRejection({
+    required int inquiryId,
+    required String quotationStatus,
+    required String quotationRejectionReason,
   }) async {
     final String? accessToken = await _storageService.getToken();
 
@@ -183,11 +217,7 @@ class InquiryRepository {
         data: {
           'inquiry_stage': 4,
           'quotation_status': quotationStatus,
-          'confirmation_status': confirmationStatus,
-          if (quotationRejectionReason != "")
-            'quotation_rejection_reason': quotationRejectionReason,
-          if (confirmationRejectionReason != "")
-            'confirmation_rejection_reason': confirmationRejectionReason,
+          'quotation_rejection_reason': quotationRejectionReason,
         },
         options: Options(
           headers: {

@@ -276,15 +276,17 @@ class HomeScreen extends ConsumerWidget {
                                         0),
                             _categoryCard(context,
                                 title: 'Order Confirmation',
-                                inquirySate: 3,
+                                inquirySate: 4,
                                 confirmationStatus: 'accepted',
+                                quetationSataus: "pending",
                                 count:
                                     countState.counts?["order_confirmation"] ??
                                         0),
                             _categoryCard(context,
                                 title: 'Quote Pending',
-                                inquirySate: 3,
+                                inquirySate: 4,
                                 confirmationStatus: 'accepted',
+                                quetationSataus: 'pending',
                                 count:
                                     countState.counts?["quote_pending"] ?? 0),
                             _categoryCard(context,
@@ -301,8 +303,8 @@ class HomeScreen extends ConsumerWidget {
                                         0),
                             _categoryCard(context,
                                 title: 'Order Rejected',
-                                inquirySate: 6,
-                                confirmationStatus: "rejected",
+                                inquirySate: 4,
+                                // confirmationStatus: "rejected",
                                 quetationSataus: "rejected",
                                 count:
                                     countState.counts?["order_rejected"] ?? 0),

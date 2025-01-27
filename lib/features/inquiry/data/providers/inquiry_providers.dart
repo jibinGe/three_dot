@@ -137,15 +137,40 @@ class InquiryNotifier extends StateNotifier<InquiryState> {
     required String confirmationStatus,
     required String quotationRejectionReason,
     required String confirmationRejectionReason,
+    required bool isConfirmationOnly,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final inquiry = await _repository.updateQuotationStatus(
+          inquiryId: inquiryId,
+          quotationStatus: quotationStatus,
+          confirmationStatus: confirmationStatus,
+          quotationRejectionReason: quotationRejectionReason,
+          confirmationRejectionReason: confirmationRejectionReason,
+          isConfirmationOnly: isConfirmationOnly);
+      state = state.copyWith(
+        isLoading: false,
+        inquiry: inquiry,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<void> updateQuotationRejection({
+    required int inquiryId,
+    required String quotationStatus,
+    required String quotationRejectionReason,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final inquiry = await _repository.updateQuotationRejection(
         inquiryId: inquiryId,
         quotationStatus: quotationStatus,
-        confirmationStatus: confirmationStatus,
         quotationRejectionReason: quotationRejectionReason,
-        confirmationRejectionReason: confirmationRejectionReason,
       );
       state = state.copyWith(
         isLoading: false,

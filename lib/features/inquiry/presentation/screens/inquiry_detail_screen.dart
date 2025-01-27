@@ -8,6 +8,7 @@ import 'package:three_dot/features/inquiry/presentation/screens/inquiry_stage2_s
 import 'package:three_dot/features/inquiry/presentation/screens/products_adding_screen.dart';
 import 'package:three_dot/features/inquiry/presentation/widgets/products_table.dart';
 import 'package:three_dot/features/inquiry/presentation/widgets/quotation_form.dart';
+import 'package:three_dot/features/inquiry/presentation/widgets/quotation_rejection_form.dart';
 import 'package:three_dot/features/project/presentation/widgets/project_form.dart';
 import 'package:three_dot/shared/services/location_service.dart';
 import 'package:three_dot/shared/services/pdf_generator.dart';
@@ -15,11 +16,13 @@ import 'package:three_dot/shared/services/pdf_generator.dart';
 class InquiryDetailScreen extends ConsumerStatefulWidget {
   final int inquiryId;
   final bool? isJustCreated;
+  final bool? isFromHomePage;
 
   const InquiryDetailScreen({
     Key? key,
     required this.inquiryId,
     this.isJustCreated = false,
+    this.isFromHomePage = false,
   }) : super(key: key);
 
   @override
@@ -279,7 +282,8 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
       );
     }
     if (inquiry.inquiryStage == 3 &&
-        (inquiry.selectedProducts?.isNotEmpty ?? false)) {
+        (inquiry.selectedProducts?.isNotEmpty ?? false) &&
+        !widget.isFromHomePage!) {
       sections.add(
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -300,7 +304,7 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
         ),
       );
     }
-    if (inquiry.inquiryStage == 4) {
+    if (inquiry.inquiryStage == 4 && !widget.isFromHomePage!) {
       sections.add(
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -323,6 +327,34 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
         ),
       );
     }
+    if (inquiry.inquiryStage == 3 &&
+        (inquiry.selectedProducts?.isNotEmpty ?? false) &&
+        widget.isFromHomePage!) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => QuotationForm(
+                      inquiry: inquiry,
+                      isConfirmationOnly: true,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit_document),
+                label: Text("Update Confirmation Satus"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     if (inquiry.inquiryStage == 4) {
       sections.add(
         Padding(
@@ -335,9 +367,43 @@ class _InquiryDetailScreenState extends ConsumerState<InquiryDetailScreen> {
                   await ref
                       .read(inquiryNotifierProvider.notifier)
                       .showPdf(context, inquiry);
+                  await ref
+                      .read(inquiryNotifierProvider.notifier)
+                      .updateQuotationStatus(
+                          inquiryId: widget.inquiryId,
+                          quotationStatus: "accepted",
+                          confirmationStatus: "accepted",
+                          quotationRejectionReason: "",
+                          confirmationRejectionReason: "",
+                          isConfirmationOnly: false);
                 },
                 icon: const Icon(Icons.file_open_sharp),
                 label: Text("Generate Quotation"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (inquiry.inquiryStage == 4) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => QuotationRejectionForm(
+                      inquiry: inquiry,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.file_open_sharp),
+                label: Text("Reject Quotation"),
               ),
             ],
           ),
