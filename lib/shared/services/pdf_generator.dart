@@ -382,7 +382,7 @@ class QuotationPdfGenerator {
   Future<pw.Page> _generateFirstPage() async {
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(70),
+  margin: const pw.EdgeInsets.all(35),
       build: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -400,25 +400,107 @@ class QuotationPdfGenerator {
     );
   }
 
+  // Future<pw.Page> _generateSecondPage() async {
+  //   return pw.Page(
+  //    pageFormat: PdfPageFormat.a4,
+  // margin: const pw.EdgeInsets.all(35),
+  //     build: (context) {
+  //       return pw.Column(
+  //         crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //         children: [_buildIntroduction(),
+  //           pw.SizedBox(height: 20),_buildSecondPageTitle(),
+  //           pw.SizedBox(height: 20),
+  //           _buildSpecifications(),
+  //           pw.SizedBox(height: 20),
+  //           _buildMountingStructure(),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
   Future<pw.Page> _generateSecondPage() async {
-    return pw.Page(
-      pageFormat: PdfPageFormat.a4,
-      build: (context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            _buildSpecifications(),
-            pw.SizedBox(height: 20),
-            _buildMountingStructure(),
-          ],
-        );
-      },
-    );
-  }
+  return pw.Page(
+    pageFormat: PdfPageFormat.a4,
+    margin: const pw.EdgeInsets.all(35),
+    build: (context) {
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          _buildSolarPanelSpecs(),
+          pw.SizedBox(height: 15),
+          _buildInverterSpecs(),
+          pw.SizedBox(height: 15),
+          _buildMountingStructure(),
+        ],
+      );
+    },
+  );
+}
+
+pw.Widget _buildSolarPanelSpecs() {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Text('Solar PV Module Specification', 
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
+      pw.SizedBox(height: 5),
+      pw.Table(
+        border: pw.TableBorder.all(),
+        columnWidths: {
+          0: const pw.FlexColumnWidth(1.5),
+          1: const pw.FlexColumnWidth(3),
+        },
+        children: [
+          pw.TableRow(
+            children: [
+              _buildTableCell('Manufacturer'),
+              _buildTableCell('RAYZON/ADANI'),
+            ],
+          ),
+          pw.TableRow(
+            children: [
+              _buildTableCell('Capacity'),
+              _buildTableCell('540/550 Wp'),
+            ],
+          ),
+          // Add all other rows similarly
+        ],
+      ),
+    ],
+  );
+}
+
+pw.Widget _buildInverterSpecs() {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Text('Solar Inverter Specification', 
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
+      pw.SizedBox(height: 5),
+      pw.Table(
+        border: pw.TableBorder.all(),
+        columnWidths: {
+          0: const pw.FlexColumnWidth(1.5),
+          1: const pw.FlexColumnWidth(3),
+        },
+        children: [
+          pw.TableRow(
+            children: [
+              _buildTableCell('Make'),
+              _buildTableCell('MICROTEK/SOFAR'),
+            ],
+          ),
+          // Add other inverter specs
+        ],
+      ),
+    ],
+  );
+}
 
   Future<pw.Page> _generateThirdPage() async {
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
+  margin: const pw.EdgeInsets.all(35),
       build: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -437,6 +519,7 @@ class QuotationPdfGenerator {
   Future<pw.Page> _generateFourthPage() async {
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
+  margin: const pw.EdgeInsets.all(35),
       build: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -492,6 +575,18 @@ class QuotationPdfGenerator {
         ]);
   }
 
+  pw.Widget _buildSecondPageIntroduction() {
+    return pw.Text(
+      'Please find our customized proposal for installing a solar power plant at your facility.\n\nWe request you to kindly review the same and feel free to contact us for any additional information.',
+      style: pw.TextStyle(fontSize: 11),
+    );
+  }
+  pw.Widget _buildSecondPageTitle() {
+    return pw.Text(
+      'Installation and commissioning of 3  KW  Solar Grid Tie System with 3 KW String Inverter Products specifications. ',
+      style: pw.TextStyle(fontSize: 11,fontWeight: pw.FontWeight.bold,decoration: pw.TextDecoration.overline),
+    );
+  }
   pw.Widget _buildIntroduction() {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
