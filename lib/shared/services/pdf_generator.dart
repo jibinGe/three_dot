@@ -1,366 +1,10 @@
-// import 'dart:io';
-// import 'package:pdf/pdf.dart';
-// import 'package:pdf/widgets.dart' as pw;
-// import 'package:path_provider/path_provider.dart';
-// import 'package:intl/intl.dart';
-// import 'package:printing/printing.dart';
-// import 'package:share_plus/share_plus.dart';
-
-// class SolarQuotationPDF {
-//   Future<void> generateAndShareQuotation({
-//     required String customerName,
-//     required String address,
-//     required String mobile,
-//     required String refNumber,
-//     required DateTime date,
-//     required double totalAmount,
-//     required double subsidyAmount,
-//   }) async {
-//     try {
-//       // Generate the PDF file
-//       final File pdfFile = await generateQuotation(
-//         customerName: customerName,
-//         address: address,
-//         mobile: mobile,
-//         refNumber: refNumber,
-//         date: date,
-//         totalAmount: totalAmount,
-//         subsidyAmount: subsidyAmount,
-//       );
-
-//       // Generate a meaningful filename
-//       final String fileName =
-//           'Solar_Quotation_${customerName.replaceAll(' ', '_')}_${DateFormat('yyyyMMdd').format(date)}.pdf';
-
-//       // Create a new file with the proper name
-//       final Directory tempDir = await getTemporaryDirectory();
-//       final String filePath = '${tempDir.path}/$fileName';
-//       final File namedFile = await pdfFile.copy(filePath);
-
-//       // Share the PDF file
-//       await Share.shareXFiles(
-//         [XFile(namedFile.path)],
-//         subject: 'Solar Power System Quotation',
-//         text: 'Please find attached the quotation for your solar power system.',
-//       );
-//     } catch (e) {
-//       throw Exception('Failed to share PDF: $e');
-//     }
-//   }
-
-//   Future<File> generateQuotation({
-//     required String customerName,
-//     required String address,
-//     required String mobile,
-//     required String refNumber,
-//     required DateTime date,
-//     required double totalAmount,
-//     required double subsidyAmount,
-//   }) async {
-//     final pdf = pw.Document();
-
-//     // Define base styles using standard fonts
-//     final baseStyle = pw.TextStyle(
-//       fontSize: 11,
-//       font: await PdfGoogleFonts.courierPrimeRegular(),
-//     );
-
-//     final boldStyle = pw.TextStyle(
-//       fontSize: 11,
-//       font: await PdfGoogleFonts.courierPrimeBold(),
-//     );
-
-//     // Create PDF content
-//     pdf.addPage(
-//       pw.MultiPage(
-//         pageFormat: PdfPageFormat.a4,
-//         margin: const pw.EdgeInsets.all(32),
-//         build: (pw.Context context) {
-//           return [
-//             _buildHeader(refNumber, date, baseStyle),
-//             _buildCustomerInfo(customerName, address, mobile, baseStyle),
-//             _buildSubject(boldStyle),
-//             _buildIntroduction(baseStyle),
-//             _buildCompanyInfo(baseStyle),
-//             _buildProductsServices(baseStyle, boldStyle),
-//             _buildSpecifications(baseStyle, boldStyle),
-//             _buildPricing(totalAmount, subsidyAmount, baseStyle, boldStyle),
-//             _buildPaymentTerms(baseStyle, boldStyle),
-//             _buildWarranty(baseStyle, boldStyle),
-//             _buildFooter(baseStyle, boldStyle),
-//           ];
-//         },
-//       ),
-//     );
-
-//     // Save the PDF
-//     final output = await getTemporaryDirectory();
-//     final file = File('${output.path}/solar_quotation.pdf');
-//     await file.writeAsBytes(await pdf.save());
-//     return file;
-//   }
-
-//   pw.Widget _buildHeader(String refNumber, DateTime date, pw.TextStyle style) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text('Ref: $refNumber', style: style),
-//         pw.Text('Date: ${DateFormat('dd.MM.yyyy').format(date)}', style: style),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildCustomerInfo(
-//       String name, String address, String mobile, pw.TextStyle style) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text(name, style: style),
-//         pw.Text(address, style: style),
-//         pw.Text('Mobile: $mobile', style: style),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildSubject(pw.TextStyle style) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text(
-//           'Sub: PROPOSAL FOR 3 KW SOLAR GRID TIE SYSTEMS WITH 3 KW STRING INVERTER',
-//           style: style,
-//         ),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildIntroduction(pw.TextStyle style) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text(
-//           'Thank you so very much for the courtesy extended to us during our discussion with you and showing interest in exploring solar power solutions from us.',
-//           style: style,
-//         ),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildCompanyInfo(pw.TextStyle style) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text(
-//           '3-DOT Energy solutions- a division of Rightimage Consultants Pvt Ltd -Thrissur, is managed by a group of professionals and businessmen with decades of experience in their respective fields is focused to provide cost effective energy solutions to its customers.',
-//           style: style,
-//         ),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildProductsServices(
-//       pw.TextStyle baseStyle, pw.TextStyle boldStyle) {
-//     final products = [
-//       'Solar power plants- On grid and Off grid',
-//       'Solar Panels',
-//       'Solar Inverters',
-//       'Solar Batteries',
-//       'Solar Lightings',
-//       'Solar Water Heaters',
-//       'Solar Pump sets(BLDC)',
-//       'Energy efficient ceiling fans (BLDC)',
-//     ];
-
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text('Our products and services:', style: boldStyle),
-//         pw.SizedBox(height: 10),
-//         ...products.map((product) => pw.Padding(
-//               padding: const pw.EdgeInsets.only(left: 20, bottom: 5),
-//               child: pw.Row(
-//                 crossAxisAlignment: pw.CrossAxisAlignment.start,
-//                 children: [
-//                   pw.Text('*',
-//                       style:
-//                           baseStyle), // Using asterisk instead of Unicode arrow
-//                   pw.SizedBox(width: 5),
-//                   pw.Expanded(child: pw.Text(product, style: baseStyle)),
-//                 ],
-//               ),
-//             )),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildSpecifications(
-//       pw.TextStyle baseStyle, pw.TextStyle boldStyle) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text('Products specifications:', style: boldStyle),
-//         pw.SizedBox(height: 10),
-//         _buildSpecificationTable(baseStyle),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildSpecificationTable(pw.TextStyle style) {
-//     return pw.Table(
-//       border: pw.TableBorder.all(),
-//       children: [
-//         pw.TableRow(
-//           children: [
-//             pw.Padding(
-//               padding: const pw.EdgeInsets.all(5),
-//               child: pw.Text('Solar PV Module', style: style),
-//             ),
-//             pw.Padding(
-//               padding: const pw.EdgeInsets.all(5),
-//               child: pw.Text('RAYZON/ADANI 540/550 Wp', style: style),
-//             ),
-//           ],
-//         ),
-//         pw.TableRow(
-//           children: [
-//             pw.Padding(
-//               padding: const pw.EdgeInsets.all(5),
-//               child: pw.Text('Inverter', style: style),
-//             ),
-//             pw.Padding(
-//               padding: const pw.EdgeInsets.all(5),
-//               child: pw.Text('MICROTEK/SOFAR 3KW', style: style),
-//             ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildPricing(double totalAmount, double subsidyAmount,
-//       pw.TextStyle baseStyle, pw.TextStyle boldStyle) {
-//     final currencyFormat = NumberFormat.currency(
-//       symbol: 'Rs. ',
-//       locale: 'en_IN',
-//       decimalDigits: 2,
-//     );
-
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text('Pricing Details:', style: boldStyle),
-//         pw.SizedBox(height: 10),
-//         pw.Table(
-//           border: pw.TableBorder.all(),
-//           children: [
-//             pw.TableRow(
-//               children: [
-//                 pw.Padding(
-//                   padding: const pw.EdgeInsets.all(5),
-//                   child: pw.Text('Total Amount', style: baseStyle),
-//                 ),
-//                 pw.Padding(
-//                   padding: const pw.EdgeInsets.all(5),
-//                   child: pw.Text(
-//                     currencyFormat.format(totalAmount),
-//                     style: baseStyle,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             pw.TableRow(
-//               children: [
-//                 pw.Padding(
-//                   padding: const pw.EdgeInsets.all(5),
-//                   child: pw.Text('Subsidy Amount', style: baseStyle),
-//                 ),
-//                 pw.Padding(
-//                   padding: const pw.EdgeInsets.all(5),
-//                   child: pw.Text(
-//                     currencyFormat.format(subsidyAmount),
-//                     style: baseStyle,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildPaymentTerms(pw.TextStyle baseStyle, pw.TextStyle boldStyle) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text('Payment Schedule:', style: boldStyle),
-//         pw.SizedBox(height: 10),
-//         pw.Row(children: [
-//           pw.Text('* ', style: baseStyle),
-//           pw.Expanded(
-//             child: pw.Text(
-//               '50% against order, 40% material supply, & 10% after completion of work',
-//               style: baseStyle,
-//             ),
-//           ),
-//         ]),
-//         pw.Row(children: [
-//           pw.Text('* ', style: baseStyle),
-//           pw.Expanded(
-//             child: pw.Text(
-//               'All payment to be made in favor of "Rightimage Consultants Pvt Ltd"',
-//               style: baseStyle,
-//             ),
-//           ),
-//         ]),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildWarranty(pw.TextStyle baseStyle, pw.TextStyle boldStyle) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text('Warranty:', style: boldStyle),
-//         pw.SizedBox(height: 10),
-//         pw.Text(
-//           'Performance warranty of Solar PV modules are 25 years & Solar Inverter for 10 years.',
-//           style: baseStyle,
-//         ),
-//         pw.SizedBox(height: 20),
-//       ],
-//     );
-//   }
-
-//   pw.Widget _buildFooter(pw.TextStyle baseStyle, pw.TextStyle boldStyle) {
-//     return pw.Column(
-//       crossAxisAlignment: pw.CrossAxisAlignment.start,
-//       children: [
-//         pw.Text('Sincerely,', style: baseStyle),
-//         pw.SizedBox(height: 10),
-//         pw.Text('GEORGE THOMAS', style: boldStyle),
-//         pw.Text('Managing Director', style: baseStyle),
-//       ],
-//     );
-//   }
-// }
-
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:flutter/services.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
+import 'package:three_dot/features/products/data/models/product_model.dart';
 
 class QuotationPdfGenerator {
   final InquiryModel inquiry;
@@ -382,7 +26,7 @@ class QuotationPdfGenerator {
   Future<pw.Page> _generateFirstPage() async {
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
-  margin: const pw.EdgeInsets.all(35),
+      margin: const pw.EdgeInsets.all(70),
       build: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -400,112 +44,185 @@ class QuotationPdfGenerator {
     );
   }
 
-  // Future<pw.Page> _generateSecondPage() async {
-  //   return pw.Page(
-  //    pageFormat: PdfPageFormat.a4,
-  // margin: const pw.EdgeInsets.all(35),
-  //     build: (context) {
-  //       return pw.Column(
-  //         crossAxisAlignment: pw.CrossAxisAlignment.start,
-  //         children: [_buildIntroduction(),
-  //           pw.SizedBox(height: 20),_buildSecondPageTitle(),
-  //           pw.SizedBox(height: 20),
-  //           _buildSpecifications(),
-  //           pw.SizedBox(height: 20),
-  //           _buildMountingStructure(),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
   Future<pw.Page> _generateSecondPage() async {
-  return pw.Page(
-    pageFormat: PdfPageFormat.a4,
-    margin: const pw.EdgeInsets.all(35),
-    build: (context) {
-      return pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          _buildSolarPanelSpecs(),
-          pw.SizedBox(height: 15),
-          _buildInverterSpecs(),
-          pw.SizedBox(height: 15),
-          _buildMountingStructure(),
-        ],
-      );
-    },
-  );
-}
+    return pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(70),
+      build: (context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            _buildSecondPageIntroduction(),
+            pw.SizedBox(height: 15),
+            _buildProductSpecifications(),
+            pw.SizedBox(height: 15),
+            _buildMountingStructure(),
+          ],
+        );
+      },
+    );
+  }
 
-pw.Widget _buildSolarPanelSpecs() {
-  return pw.Column(
-    crossAxisAlignment: pw.CrossAxisAlignment.start,
-    children: [
-      pw.Text('Solar PV Module Specification', 
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
-      pw.SizedBox(height: 5),
-      pw.Table(
-        border: pw.TableBorder.all(),
-        columnWidths: {
-          0: const pw.FlexColumnWidth(1.5),
-          1: const pw.FlexColumnWidth(3),
-        },
-        children: [
-          pw.TableRow(
-            children: [
-              _buildTableCell('Manufacturer'),
-              _buildTableCell('RAYZON/ADANI'),
-            ],
-          ),
-          pw.TableRow(
-            children: [
-              _buildTableCell('Capacity'),
-              _buildTableCell('540/550 Wp'),
-            ],
-          ),
-          // Add all other rows similarly
-        ],
-      ),
-    ],
-  );
-}
+  pw.Widget _buildProductSpecifications() {
+    // Get all selected products that have specifications
+    final products = inquiry.selectedProducts
+            ?.where((p) => p.product?.specifications.isNotEmpty ?? false)
+            .toList() ??
+        [];
 
-pw.Widget _buildInverterSpecs() {
-  return pw.Column(
-    crossAxisAlignment: pw.CrossAxisAlignment.start,
-    children: [
-      pw.Text('Solar Inverter Specification', 
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
-      pw.SizedBox(height: 5),
-      pw.Table(
-        border: pw.TableBorder.all(),
-        columnWidths: {
-          0: const pw.FlexColumnWidth(1.5),
-          1: const pw.FlexColumnWidth(3),
-        },
-        children: [
-          pw.TableRow(
-            children: [
-              _buildTableCell('Make'),
-              _buildTableCell('MICROTEK/SOFAR'),
-            ],
-          ),
-          // Add other inverter specs
-        ],
-      ),
-    ],
-  );
-}
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+            'Installation and commissioning of ${inquiry.proposedCapacity} KW Solar Grid Tie System with ${inquiry.proposedCapacity}  KW String Inverter',
+            style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 12,
+                decoration: pw.TextDecoration.underline)),
+        pw.SizedBox(height: 10),
+        pw.Text('Products specifications:',
+            style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 12,
+                decoration: pw.TextDecoration.underline)),
+        pw.SizedBox(height: 10),
+        ...products
+            .map((selectedProduct) =>
+                _buildProductSpecTable(selectedProduct.product!))
+            .toList(),
+      ],
+    );
+  }
+
+  pw.Widget _buildProductSpecTable(Product product) {
+    final specEntries = product.specifications.entries.toList();
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.SizedBox(height: 15),
+        pw.Bullet(
+            text: '${product.name} Specification',
+            style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                fontSize: 11,
+                decoration: pw.TextDecoration.underline)),
+        // pw.Text('${product.name} Specification',
+        //     style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11)),
+        pw.SizedBox(height: 5),
+        pw.Table(
+          border: pw.TableBorder.all(),
+          columnWidths: {
+            0: const pw.FlexColumnWidth(1.5),
+            1: const pw.FlexColumnWidth(3),
+          },
+          children: [
+            // Manufacturer row (common for all products)
+            if (product.manufacturer.isNotEmpty)
+              _buildSpecTableRow('Manufacturer', product.manufacturer, true),
+
+            // Model row (common for all products)
+            if (product.model.isNotEmpty)
+              _buildSpecTableRow('Model', product.model, false),
+
+            // Specification rows
+            ...specEntries
+                .map((entry) => _buildSpecTableRow(
+                    entry.key, entry.value.toString(), false))
+                .toList(),
+
+            // // Quantity row (from SelectedProductModel)
+            // _buildSpecTableRow('Quantity', selectedProduct.quantity.toString()),
+          ],
+        ),
+      ],
+    );
+  }
+
+  pw.TableRow _buildSpecTableRow(
+      String parameter, String value, bool? isFirstRow) {
+    return pw.TableRow(
+      children: [
+        _buildTableCell(parameter,
+            isHeader: true, isFirst: isFirstRow ?? false),
+        _buildTableCell(value, isFirst: isFirstRow ?? false),
+      ],
+    );
+  }
+
+  pw.Widget _buildSolarPanelSpecs() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text('Solar PV Module Specification',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
+        pw.SizedBox(height: 5),
+        pw.Table(
+          border: pw.TableBorder.all(),
+          columnWidths: {
+            0: const pw.FlexColumnWidth(1.5),
+            1: const pw.FlexColumnWidth(3),
+          },
+          children: [
+            pw.TableRow(
+              children: [
+                _buildTableCell('Manufacturer'),
+                _buildTableCell('RAYZON/ADANI'),
+              ],
+            ),
+            pw.TableRow(
+              children: [
+                _buildTableCell('Capacity'),
+                _buildTableCell('540/550 Wp'),
+              ],
+            ),
+            // Add all other rows similarly
+          ],
+        ),
+      ],
+    );
+  }
+
+  pw.Widget _buildInverterSpecs() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text('Solar Inverter Specification',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
+        pw.SizedBox(height: 5),
+        pw.Table(
+          border: pw.TableBorder.all(),
+          columnWidths: {
+            0: const pw.FlexColumnWidth(1.5),
+            1: const pw.FlexColumnWidth(3),
+          },
+          children: [
+            pw.TableRow(
+              children: [
+                _buildTableCell('Make'),
+                _buildTableCell('MICROTEK/SOFAR'),
+              ],
+            ),
+            // Add other inverter specs
+          ],
+        ),
+      ],
+    );
+  }
 
   Future<pw.Page> _generateThirdPage() async {
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
-  margin: const pw.EdgeInsets.all(35),
+      margin: const pw.EdgeInsets.all(70),
       build: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
             // _buildCablingDetails(),
+            pw.SizedBox(height: 20),
+            _buildCoperCabletable(),
+            pw.SizedBox(height: 20),
+            _buildScopOfWiring(),
             pw.SizedBox(height: 20),
             _buildPricingDetails(),
             pw.SizedBox(height: 20),
@@ -516,14 +233,122 @@ pw.Widget _buildInverterSpecs() {
     );
   }
 
+  pw.Widget _buildCoperCabletable() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text('Copper Cables:',
+            style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                decoration: pw.TextDecoration.underline),
+            textAlign: pw.TextAlign.center),
+        pw.SizedBox(height: 10),
+        pw.Table(
+          border: pw.TableBorder.all(),
+          children: [
+            pw.TableRow(
+              children: [
+                _buildTableCell('Parameter', isHeader: true),
+                _buildTableCell('Specifications', isHeader: true),
+              ],
+            ),
+            pw.TableRow(
+              children: [
+                _buildTableCell(
+                  'Type',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+                _buildTableCell(
+                  'PVC/XLPE/XLPO',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+              ],
+            ),
+            pw.TableRow(
+              children: [
+                _buildTableCell(
+                  'Material',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+                _buildTableCell(
+                  'Copper  wire',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+              ],
+            ),
+            pw.TableRow(
+              children: [
+                _buildTableCell(
+                  'Make',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+                _buildTableCell(
+                  'Polycab/microtek',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+              ],
+            ),
+            pw.TableRow(
+              children: [
+                _buildTableCell(
+                  'Working voltage',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+                _buildTableCell(
+                  'Up to 1100 V',
+                  alignment: pw.Alignment.centerLeft,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  pw.Widget _buildScopOfWiring() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          'Scope of Wiring:-',
+          style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              decoration: pw.TextDecoration.underline),
+        ),
+        pw.SizedBox(height: 5),
+        _buildBulletList([
+          'Between Module to array junction box/Main junction box.',
+          'Between AJB/MAJB/DC DB to Grid Inverter',
+          'Grid Inverter to Ac DB',
+          'Ac DB to LT Panel',
+        ]),
+        pw.SizedBox(height: 15),
+        pw.Text(
+          'Other Components',
+          style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              decoration: pw.TextDecoration.underline),
+        ),
+        pw.SizedBox(height: 5),
+        _buildBulletList([
+          'Solar Net meter,Energy meter, ACDB,DCDB,,Isolator',
+          'UG Cable:- As per requirement, if necessary',
+          'Lightning Arrester Multi spike - Sufficient numbers shall be provided for lightning',
+        ]),
+      ],
+    );
+  }
+
   Future<pw.Page> _generateFourthPage() async {
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
-  margin: const pw.EdgeInsets.all(35),
+      margin: const pw.EdgeInsets.all(70),
       build: (context) {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
+            pw.SizedBox(height: 40),
             _buildTermsAndConditions(),
             pw.SizedBox(height: 20),
             _buildWarranty(),
@@ -546,9 +371,12 @@ pw.Widget _buildInverterSpecs() {
               pw.Text(inquiry.name,
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 20),
-              if (inquiry.address != null) pw.Text(inquiry.address!),
+              if (inquiry.address != null)
+                pw.Text(inquiry.address!,
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.normal)),
               if (inquiry.mobileNumber != null)
-                pw.Text('Mobile: ${inquiry.mobileNumber}'),
+                pw.Text('Mobile: ${inquiry.mobileNumber}',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.normal)),
               pw.SizedBox(height: 10),
               pw.Text(
                 'Sub: PROPOSAL FOR ${inquiry.proposedCapacity} KW SOLAR GRID TIE SYSTEMS',
@@ -564,12 +392,12 @@ pw.Widget _buildInverterSpecs() {
             children: [
               pw.Text(
                 'Ref: ${inquiry.inquiryNumber}',
-                style: pw.TextStyle(fontSize: 12),
+                style: pw.TextStyle(
+                    fontSize: 12, fontWeight: pw.FontWeight.normal),
               ),
-              pw.Text(
-                'Date: ${_formatDate(inquiry.createdAt)}',
-                style: pw.TextStyle(fontSize: 12),
-              ),
+              pw.Text('Date: ${_formatDate(inquiry.createdAt)}',
+                  style: pw.TextStyle(
+                      fontSize: 12, fontWeight: pw.FontWeight.normal)),
             ],
           ),
         ]);
@@ -581,12 +409,7 @@ pw.Widget _buildInverterSpecs() {
       style: pw.TextStyle(fontSize: 11),
     );
   }
-  pw.Widget _buildSecondPageTitle() {
-    return pw.Text(
-      'Installation and commissioning of 3  KW  Solar Grid Tie System with 3 KW String Inverter Products specifications. ',
-      style: pw.TextStyle(fontSize: 11,fontWeight: pw.FontWeight.bold,decoration: pw.TextDecoration.overline),
-    );
-  }
+
   pw.Widget _buildIntroduction() {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -597,7 +420,7 @@ pw.Widget _buildInverterSpecs() {
         ),
         pw.SizedBox(height: 10),
         pw.Text(
-          '3-DOT Energy solutions- a division of Rightimage Consultants  Pvt- ltd –Thrissur, is managed by a group of professionals and businessmen with decades of experience in their respective fields is focused to provide cost effective energy solutions to its customers. Established in 1990 as a manufacturer of Inverters, SMPS and Automobile electronic products,  In the year 2010,  3DOT foray its business into renewable energy sector across the state of Kerala. We have successfully completed over 250 KW solar projects of various capacities for institutions and households. Our client base stands at 150 plus. We are an experienced green energy solutions provider capable of understanding client requirements and provide suitable cost effective solutions for the same. ',
+          '3-DOT Energy solutions- a division of Rightimage Consultants  Pvt- ltd -Thrissur, is managed by a group of professionals and businessmen with decades of experience in their respective fields is focused to provide cost effective energy solutions to its customers. Established in 1990 as a manufacturer of Inverters, SMPS and Automobile electronic products,  In the year 2010,  3DOT foray its business into renewable energy sector across the state of Kerala. We have successfully completed over 250 KW solar projects of various capacities for institutions and households. Our client base stands at 150 plus. We are an experienced green energy solutions provider capable of understanding client requirements and provide suitable cost effective solutions for the same. ',
           style: pw.TextStyle(fontSize: 11),
         ),
       ],
@@ -627,50 +450,21 @@ pw.Widget _buildInverterSpecs() {
     );
   }
 
-  pw.Widget _buildSpecifications() {
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text(
-          'Products specifications:',
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        ),
-        pw.SizedBox(height: 10),
-        _buildProductSpecificationTable(),
-      ],
-    );
-  }
-
-  pw.Widget _buildProductSpecificationTable() {
-    final products = inquiry.selectedProducts ?? [];
-    return pw.Table(
-      border: pw.TableBorder.all(),
-      children: [
-        // Header row
-        pw.TableRow(
-          children: [
-            _buildTableCell('Product', isHeader: true),
-            _buildTableCell('Specifications', isHeader: true),
-          ],
-        ),
-        // Product rows
-        ...products.map((product) {
-          return pw.TableRow(
-            children: [
-              _buildTableCell(product.product?.name ?? ''),
-              _buildTableCell(
-                  _formatSpecifications(product.product?.specifications ?? {})),
-            ],
-          );
-        }).toList(),
-      ],
-    );
-  }
-
   pw.Widget _buildMountingStructure() {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
+        pw.Text(
+          'Features',
+          style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              decoration: pw.TextDecoration.underline),
+        ),
+        pw.SizedBox(height: 5),
+        _buildBulletList([
+          'Smart monitoring-Wi-Fi communication ',
+        ]),
+        pw.SizedBox(height: 10),
         pw.Text(
           'Solar Mounting Structure',
           style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
@@ -686,34 +480,83 @@ pw.Widget _buildInverterSpecs() {
 
   pw.Widget _buildPricingDetails() {
     return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
-        pw.Text(
-          'Pricing Details',
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        ),
+        pw.Row(mainAxisAlignment: pw.MainAxisAlignment.center, children: [
+          pw.Text('Warranty for Net meter - 4 years',
+              style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+              ),
+              textAlign: pw.TextAlign.center),
+          pw.Text(' against manufacturing defects',
+              style: pw.TextStyle(
+                fontWeight: pw.FontWeight.normal,
+              ),
+              textAlign: pw.TextAlign.center),
+        ]),
+        pw.SizedBox(height: 10),
+        pw.Text('Power generation Daily :    15 units ,subject to sunlight',
+            style: pw.TextStyle(
+              fontWeight: pw.FontWeight.normal,
+            ),
+            textAlign: pw.TextAlign.center),
+        pw.SizedBox(height: 10),
+        pw.Text('Pricing Details for ${inquiry.proposedCapacity} panal',
+            style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                decoration: pw.TextDecoration.underline),
+            textAlign: pw.TextAlign.center),
         pw.SizedBox(height: 10),
         pw.Table(
           border: pw.TableBorder.all(),
           children: [
             pw.TableRow(
               children: [
-                _buildTableCell('Particulars'),
-                _buildTableCell('Price'),
+                _buildTableCell('Particulars', isFirst: true, isHeader: true),
+                _buildTableCell('Price', isFirst: true, isHeader: true),
               ],
             ),
             pw.TableRow(
               children: [
                 _buildTableCell(
-                    'Supply and Installation of ${inquiry.proposedCapacity} KW Ongrid Solar Power Plant'),
+                    "Supply and Installation of ${inquiry.proposedCapacity} KW Ongrid Solar Power\nPlant with Mono perc panels ${inquiry.proposedCapacity} kW Microtek /Sofar\nInverter and all accessories.(Including GST)",
+                    alignment: pw.Alignment.centerLeft,
+                    isSecond: true),
                 _buildTableCell(
-                  '₹ ${_formatCurrency(inquiry.proposedAmount ?? 0)}',
-                  alignment: pw.Alignment.centerRight,
-                ),
+                    "${_formatCurrency(inquiry.proposedAmount ?? 0)}\n  \n ",
+                    alignment: pw.Alignment.center,
+                    isSecond: true),
+              ],
+            ),
+            pw.TableRow(
+              children: [
+                _buildTableCell('Total amount',
+                    alignment: pw.Alignment.centerLeft, isSecond: true),
+                _buildTableCell(
+                    '${_formatCurrency(inquiry.proposedAmount ?? 0)}',
+                    alignment: pw.Alignment.center,
+                    isSecond: true,
+                    isHeader: true),
               ],
             ),
           ],
         ),
+        pw.SizedBox(height: 15),
+        pw.Text(
+            'Note: KSEB statutory payments charges extra (Rs. 4720.00)\n   Feasibility fee          1180.00(1000+18% tax)\n    Registration fee       3540.00(3000+18% tax)\n\n     (Refundable amount to the client Rs.2400.00)',
+            style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+            ),
+            textAlign: pw.TextAlign.center),
+        pw.SizedBox(height: 25),
+        pw.Row(mainAxisAlignment: pw.MainAxisAlignment.start, children: [
+          pw.Text('Subsidy amount Rs. 78,000/-',
+              style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  decoration: pw.TextDecoration.underline,
+                  color: PdfColors.green),
+              textAlign: pw.TextAlign.left),
+        ])
       ],
     );
   }
@@ -738,8 +581,24 @@ pw.Widget _buildInverterSpecs() {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
+          'Payment Schedule:',
+          style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              decoration: pw.TextDecoration.underline),
+        ),
+        pw.SizedBox(height: 5),
+        _buildBulletList([
+          '50% against order, 40% material supply, & 10% after completion of work',
+          'All payment to be made in favor of “Rightimage Consultants Pvt Ltd',
+          'UG Cable will be extra as per requirement, if necessary',
+          'Bank details: Rightimage Consultants Pvt Ltd. Bank of India , Thrissur Branch A/C No.855030110000076 IFS Code- BKID0008550',
+        ]),
+        pw.SizedBox(height: 15),
+        pw.Text(
           'Terms & conditions:',
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              decoration: pw.TextDecoration.underline),
         ),
         pw.SizedBox(height: 5),
         _buildBulletList([
@@ -758,13 +617,27 @@ pw.Widget _buildInverterSpecs() {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
-          'Warranty:',
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          'Price validity:',
+          style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              decoration: pw.TextDecoration.underline),
         ),
         pw.SizedBox(height: 5),
         pw.Text(
-          'Performance warranty of Solar PV modules are 25 years & Solar Inverter for 10 years.\n\n'
-          'The warranty provided by us does not cover damages to the solar power plant/equipments, due to natural calamities like flood, heavy winds, lightning etc.',
+          'Above quoted price is valid for one month only',
+          style: pw.TextStyle(fontSize: 11),
+        ),
+        pw.SizedBox(height: 15),
+        pw.Text(
+          'Warranty:',
+          style: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold,
+              decoration: pw.TextDecoration.underline),
+        ),
+        pw.SizedBox(height: 5),
+        pw.Text(
+          'The warranty provided by us does not cover damages to the solar power plant/equipments, due to natural calamities like flood, heavy winds, lightning etc.Customer can take insurance policy for their solar power plant/equipments against such incidents.\n\n'
+          'We once again thank you for the opportunity given to represent ourselves and trust that our offer is in line with your requirements and looking forward to hearing from you.\n\nSincerely,',
           style: pw.TextStyle(fontSize: 11),
         ),
       ],
@@ -776,25 +649,29 @@ pw.Widget _buildInverterSpecs() {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
-          'We once again thank you for the opportunity given to represent ourselves and trust that our offer is in line with your requirements and looking forward to hearing from you.',
-          style: pw.TextStyle(fontSize: 11),
-        ),
-        pw.SizedBox(height: 20),
-        pw.Text(
-          'Sincerely,\n\nManaging Director',
-          style: pw.TextStyle(fontSize: 11),
+          '\n\n\n\nGeorge Thomas\nManaging Director',
+          style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold),
         ),
       ],
     );
   }
 
   // Helper widgets and methods
-  pw.Widget _buildTableCell(String text,
-      {bool isHeader = false,
-      pw.Alignment alignment = pw.Alignment.centerLeft}) {
+  pw.Widget _buildTableCell(
+    String text, {
+    bool isHeader = false,
+    pw.Alignment alignment = pw.Alignment.centerLeft,
+    bool isFirst = false,
+    bool isSecond = false,
+  }) {
     return pw.Container(
       padding: pw.EdgeInsets.all(5),
       alignment: alignment,
+      color: isFirst
+          ? PdfColor.fromHex("#eeece1")
+          : isSecond
+              ? PdfColor.fromHex("#dbe5f1")
+              : null,
       child: pw.Text(
         text,
         style: pw.TextStyle(
@@ -809,16 +686,9 @@ pw.Widget _buildInverterSpecs() {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: items.map((item) {
-        return pw.Padding(
-          padding: pw.EdgeInsets.only(bottom: 2),
-          child: pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.end,
-            children: [
-              pw.Icon(pw.IconData(0xf111), size: 5),
-              pw.SizedBox(width: 5),
-              pw.Expanded(child: pw.Text(item))
-            ],
-          ),
+        return pw.Bullet(
+          text: item,
+          style: pw.TextStyle(fontWeight: pw.FontWeight.normal),
         );
       }).toList(),
     );
@@ -831,9 +701,5 @@ pw.Widget _buildInverterSpecs() {
 
   String _formatCurrency(double amount) {
     return amount.toStringAsFixed(2);
-  }
-
-  String _formatSpecifications(Map<String, dynamic> specs) {
-    return specs.entries.map((e) => '${e.key}: ${e.value}').join('\n');
   }
 }
