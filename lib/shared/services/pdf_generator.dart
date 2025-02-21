@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart';
+import 'package:printing/printing.dart';
 import 'package:three_dot/features/inquiry/data/models/inquiry_model.dart';
 import 'package:three_dot/features/products/data/models/product_model.dart';
 

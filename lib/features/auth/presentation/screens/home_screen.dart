@@ -304,7 +304,6 @@ class HomeScreen extends ConsumerWidget {
                             _categoryCard(context,
                                 title: 'Order Rejected',
                                 inquirySate: 4,
-                                // confirmationStatus: "rejected",
                                 quetationSataus: "rejected",
                                 count:
                                     countState.counts?["order_rejected"] ?? 0),
